@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casos Clínicos — Microbiologia P2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap');
+:root{
+  --bg:#f5f0eb;--surface:#fff;--surface2:#faf7f4;
+  --border:#e2d8ce;--border2:#c8baa8;
+  --red:#b5281c;--red-light:#fdf0ee;--red-mid:#e8c5c0;
+  --green:#1a6b3c;--green-light:#edf7f2;
+  --blue:#1a4f7a;--blue-light:#eaf3fb;
+  --gold:#9a7000;--gold-light:#fdf8e0;
+  --purple:#5c3490;--purple-light:#f3eefb;
+  --orange:#b84a00;--orange-light:#fef3ea;
+  --text:#1e110a;--text-muted:#6a5548;--text-light:#9a8070;
+  --shadow:0 2px 16px rgba(30,17,10,.08);
+  --shadow-lg:0 8px 40px rgba(30,17,10,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* TOP BAR */
+.top-bar{background:var(--red);color:#fff;padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(181,40,28,.3);}
+.top-bar-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;}
+.top-bar-sub{font-size:.73rem;opacity:.85;margin-top:.1rem;}
+.score-pill{background:rgba(255,255,255,.2);border-radius:20px;padding:.35rem .9rem;font-size:.82rem;font-weight:700;white-space:nowrap;}
+
+/* NAV */
+.nav-bar{background:var(--surface);border-bottom:2px solid var(--border);padding:.5rem 1.5rem;display:flex;gap:.4rem;flex-wrap:wrap;}
+.nav-btn{background:none;border:1px solid var(--border);border-radius:20px;padding:.32rem .85rem;font-size:.76rem;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:all .2s;white-space:nowrap;}
+.nav-btn:hover,.nav-btn.active{background:var(--red);color:#fff;border-color:var(--red);}
+
+/* MAIN */
+.main{max-width:860px;margin:0 auto;padding:1.5rem;}
+.screen{display:none;} .screen.active{display:block;}
+
+/* ── INTRO ── */
+.intro-hero{background:linear-gradient(135deg,#8b1a10 0%,var(--red) 60%,#d44030 100%);color:#fff;border-radius:14px;padding:2.2rem;margin-bottom:1.5rem;position:relative;overflow:hidden;}
+.intro-hero::before{content:'🩺';position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);font-size:6rem;opacity:.12;}
+.intro-hero h1{font-family:'Playfair Display',serif;font-size:2.1rem;font-weight:900;margin-bottom:.4rem;}
+.intro-hero p{opacity:.9;font-size:.94rem;line-height:1.55;max-width:500px;}
+.meta-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.8rem;margin-bottom:1.5rem;}
+.meta-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.9rem;text-align:center;}
+.meta-val{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--red);display:block;}
+.meta-label{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;}
+.case-list-preview{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.5rem;}
+.case-preview-item{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.75rem 1rem;display:flex;align-items:center;gap:.8rem;cursor:pointer;transition:all .2s;font-size:.88rem;}
+.case-preview-item:hover{border-color:var(--red);background:var(--red-light);}
+.case-preview-num{width:30px;height:30px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.82rem;flex-shrink:0;}
+.case-preview-info{flex:1;}
+.case-preview-title{font-weight:700;color:var(--text);}
+.case-preview-sub{font-size:.78rem;color:var(--text-muted);}
+.case-preview-badge{font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:10px;background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);white-space:nowrap;}
+.btn-start-all{width:100%;background:var(--red);color:#fff;border:none;padding:1rem;font-size:1rem;font-weight:700;border-radius:9px;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:all .2s;text-transform:uppercase;letter-spacing:.06em;}
+.btn-start-all:hover{background:#8b1a10;transform:translateY(-2px);box-shadow:0 6px 24px rgba(181,40,28,.35);}
+
+/* ── CASE ── */
+.case-header{background:var(--surface);border:1px solid var(--border);border-radius:12px 12px 0 0;border-bottom:none;padding:1.1rem 1.4rem;display:flex;align-items:center;gap:1rem;}
+.case-num-badge{width:44px;height:44px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;flex-shrink:0;}
+.case-meta{flex:1;}
+.case-meta h2{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;}
+.case-meta-sub{font-size:.75rem;color:var(--text-muted);margin-top:.1rem;}
+.diff-badge{font-size:.68rem;font-weight:700;padding:.2rem .65rem;border-radius:10px;border:1px solid;}
+.diff-easy{background:#edf7f2;color:var(--green);border-color:#a8dcc0;}
+.diff-med{background:var(--gold-light);color:var(--gold);border-color:#ddc870;}
+.diff-hard{background:var(--red-light);color:var(--red);border-color:var(--red-mid);}
+
+.vignette{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--blue);padding:1.2rem 1.4rem;font-size:.94rem;line-height:1.7;color:var(--text);}
+.vignette strong{color:var(--blue);}
+.vignette .label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:.5rem;display:block;}
+
+.exam-box{background:var(--surface2);border:1px solid var(--border);padding:1rem 1.4rem;font-size:.88rem;line-height:1.65;}
+.exam-box .label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.4rem;display:block;}
+.exam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.5rem;margin-top:.4rem;}
+.exam-item{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:.5rem .75rem;font-size:.83rem;}
+.exam-item .ek{font-size:.65rem;color:var(--text-light);text-transform:uppercase;letter-spacing:.07em;}
+.exam-item .ev{font-weight:600;color:var(--text);}
+
+/* QUESTIONS */
+.questions-wrap{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 12px 12px;padding:1.2rem 1.4rem;}
+.q-block{margin-bottom:1.4rem;padding-bottom:1.4rem;border-bottom:1px solid var(--border);}
+.q-block:last-of-type{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.q-num{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--red);margin-bottom:.4rem;}
+.q-text{font-size:.97rem;font-weight:600;line-height:1.5;margin-bottom:.9rem;color:var(--text);}
+.opts{display:flex;flex-direction:column;gap:.45rem;}
+.opt-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;font-size:.9rem;color:var(--text);cursor:pointer;text-align:left;transition:all .15s;display:flex;align-items:flex-start;gap:.7rem;font-family:'Source Sans 3',sans-serif;line-height:1.4;}
+.opt-btn:hover:not(:disabled){border-color:var(--blue);background:var(--blue-light);transform:translateX(3px);}
+.opt-key{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;background:var(--surface);border:1px solid var(--border);border-radius:4px;font-size:.73rem;font-weight:700;color:var(--text-muted);flex-shrink:0;margin-top:1px;}
+.opt-btn.correct{border-color:var(--green);background:var(--green-light);}
+.opt-btn.correct .opt-key{background:var(--green);color:#fff;border-color:var(--green);}
+.opt-btn.wrong{border-color:var(--red);background:var(--red-light);}
+.opt-btn.wrong .opt-key{background:var(--red);color:#fff;border-color:var(--red);}
+.opt-btn:disabled{cursor:default;}
+
+.feedback{margin-top:.8rem;padding:.85rem 1rem;border-radius:8px;font-size:.88rem;line-height:1.6;display:none;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+.feedback.correct{background:var(--green-light);border:1px solid #a8dcc0;color:#0d4a28;}
+.feedback.wrong{background:var(--red-light);border:1px solid var(--red-mid);color:#7a1010;}
+.feedback-title{font-weight:700;margin-bottom:.2rem;}
+
+/* GABARITO COMPLETO */
+.gabarito-btn{width:100%;background:var(--surface2);border:2px dashed var(--border2);border-radius:9px;padding:.85rem;font-size:.9rem;font-weight:700;color:var(--text-muted);cursor:pointer;transition:all .2s;font-family:'Source Sans 3',sans-serif;margin-top:1.2rem;}
+.gabarito-btn:hover{border-color:var(--gold);color:var(--gold);}
+.gabarito-full{display:none;margin-top:1rem;background:var(--gold-light);border:1px solid #ddc870;border-radius:9px;padding:1.1rem 1.3rem;}
+.gabarito-full.open{display:block;animation:fadeIn .3s ease;}
+.gabarito-full h4{color:var(--gold);font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.7rem;}
+.gabarito-full p{font-size:.88rem;line-height:1.65;color:var(--text);}
+.gabarito-full ul{padding-left:1.2rem;margin-top:.4rem;}
+.gabarito-full li{font-size:.88rem;line-height:1.6;margin-bottom:.3rem;}
+
+/* NAV CASE */
+.case-nav{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;gap:1rem;}
+.btn-nav{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.7rem 1.4rem;font-size:.88rem;font-weight:700;color:var(--text);cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:all .2s;}
+.btn-nav:hover{border-color:var(--red);color:var(--red);}
+.btn-nav:disabled{opacity:.4;cursor:default;}
+.btn-nav-main{background:var(--red);color:#fff;border-color:var(--red);}
+.btn-nav-main:hover{background:#8b1a10;color:#fff;}
+.case-progress{font-size:.8rem;color:var(--text-muted);}
+
+/* RESULT */
+.result-hero{background:linear-gradient(135deg,#0d3d1f,#1a6b3c);color:#fff;border-radius:14px;padding:2rem;text-align:center;margin-bottom:1.5rem;}
+.result-medal{font-size:3.5rem;display:block;margin-bottom:.5rem;}
+.result-score{font-family:'Playfair Display',serif;font-size:4rem;font-weight:900;line-height:1;}
+.result-label{opacity:.9;font-size:.95rem;margin-top:.4rem;}
+.result-bar-wrap{background:rgba(255,255,255,.2);border-radius:8px;height:10px;margin:.9rem 0;overflow:hidden;}
+.result-bar{height:100%;border-radius:8px;background:#fff;transition:width 1s ease;}
+.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1.4rem;}
+.result-stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.9rem;text-align:center;}
+.result-stat-val{font-size:1.6rem;font-weight:900;display:block;}
+.result-stat-label{font-size:.72rem;color:var(--text-muted);}
+.review-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem;margin-bottom:1.2rem;}
+.review-wrap h3{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:.8rem;}
+.review-row{display:flex;align-items:flex-start;gap:.6rem;font-size:.85rem;padding:.5rem .7rem;border-radius:7px;margin-bottom:.4rem;line-height:1.4;}
+.review-row.ok{background:var(--green-light);border-left:3px solid var(--green);}
+.review-row.err{background:var(--red-light);border-left:3px solid var(--red);}
+.btn-restart{width:100%;background:var(--red);color:#fff;border:none;padding:1rem;font-size:1rem;font-weight:700;border-radius:9px;cursor:pointer;font-family:'Source Sans 3',sans-serif;text-transform:uppercase;letter-spacing:.06em;transition:all .2s;}
+.btn-restart:hover{background:#8b1a10;}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div>
+    <div class="top-bar-title">🩺 Casos Clínicos — Microbiologia P2</div>
+    <div class="top-bar-sub">11 casos · 3 questões cada · Formato prova</div>
+  </div>
+  <div class="score-pill" id="scoreDisplay">0 / 0 acertos</div>
+</div>
+
+<div class="nav-bar">
+  <button class="nav-btn active" onclick="goScreen('intro')">🏠 Início</button>
+  <button class="nav-btn" onclick="goCase(0)">Caso 1</button>
+  <button class="nav-btn" onclick="goCase(1)">Caso 2</button>
+  <button class="nav-btn" onclick="goCase(2)">Caso 3</button>
+  <button class="nav-btn" onclick="goCase(3)">Caso 4</button>
+  <button class="nav-btn" onclick="goCase(4)">Caso 5</button>
+  <button class="nav-btn" onclick="goCase(5)">Caso 6</button>
+  <button class="nav-btn" onclick="goCase(6)">Caso 7</button>
+  <button class="nav-btn" onclick="goCase(7)">Caso 8</button>
+  <button class="nav-btn" onclick="goCase(8)">Caso 9</button>
+  <button class="nav-btn" onclick="goCase(9)">Caso 10</button>
+  <button class="nav-btn" onclick="goCase(10)">Caso 11</button>
+  <button class="nav-btn" onclick="goScreen('result')">📊 Resultado</button>
+</div>
+
+<div class="main">
+
+<!-- ══ INTRO ══ -->
+<div id="screen-intro" class="screen active">
+  <div class="intro-hero">
+    <h1>Casos Clínicos</h1>
+    <p>11 casos simulando o formato real da sua prova. Cada caso tem vinheta clínica completa, exames laboratoriais e 3 questões com feedback detalhado.</p>
+  </div>
+  <div class="meta-strip">
+    <div class="meta-box"><span class="meta-val">11</span><span class="meta-label">Casos</span></div>
+    <div class="meta-box"><span class="meta-val">33</span><span class="meta-label">Questões</span></div>
+    <div class="meta-box"><span class="meta-val">3</span><span class="meta-label">Dificuldades</span></div>
+    <div class="meta-box"><span class="meta-val">11/06</span><span class="meta-label">Prova</span></div>
+  </div>
+  <div class="case-list-preview" id="caseListPreview"></div>
+  <button class="btn-start-all" onclick="goCase(0)">▶ INICIAR DO CASO 1</button>
+</div>
+
+<!-- ══ CASES (gerados por JS) ══ -->
+<div id="screen-case" class="screen"></div>
+
+<!-- ══ RESULT ══ -->
+<div id="screen-result" class="screen">
+  <div class="result-hero">
+    <span class="result-medal" id="resMedal"></span>
+    <div class="result-score" id="resScore"></div>
+    <div class="result-label" id="resLabel"></div>
+    <div class="result-bar-wrap"><div class="result-bar" id="resBar"></div></div>
+  </div>
+  <div class="result-stats">
+    <div class="result-stat"><span class="result-stat-val" id="resCorrect" style="color:var(--green)"></span><span class="result-stat-label">✅ Corretas</span></div>
+    <div class="result-stat"><span class="result-stat-val" id="resWrong" style="color:var(--red)"></span><span class="result-stat-label">❌ Incorretas</span></div>
+    <div class="result-stat"><span class="result-stat-val" id="resPct" style="color:var(--blue)"></span><span class="result-stat-label">📊 Aproveit.</span></div>
+  </div>
+  <div class="review-wrap">
+    <h3>Revisão por caso</h3>
+    <div id="resReview"></div>
+  </div>
+  <button class="btn-restart" onclick="restart()">↺ REINICIAR TODOS OS CASOS</button>
+</div>
+
+</div><!-- main -->
+
+<script>
+// ═══════════════════════════════════════════════════
+// BANCO DE CASOS CLÍNICOS
+// ═══════════════════════════════════════════════════
+const CASES = [
+
+// 1. E. COLI O157:H7
+{
+  bact:"E. coli O157:H7",
+  diff:"hard",
+  diffLabel:"Difícil",
+  title:"Criança com diarreia sanguinolenta e oligúria",
+  vignette:`<strong>Paciente:</strong> Menino de 4 anos, previamente hígido. <strong>Queixa:</strong> há 5 dias com diarreia aquosa que evoluiu para sanguinolenta (hematoquezia), cólicas abdominais intensas, febre baixa (37,8°C). A mãe relata que a família fez churrasqueira há 1 semana com carne moída mal passada. Hoje a criança está pálida, irritável, com diurese reduzida nas últimas 12 horas.`,
+  exams:[
+    {k:"Hb",v:"7,2 g/dL (↓↓)"},
+    {k:"Plaquetas",v:"48.000/µL (↓↓)"},
+    {k:"Creatinina",v:"3,8 mg/dL (↑↑)"},
+    {k:"LDH",v:"Elevada"},
+    {k:"Esquizócitos",v:"Presentes no esfregaço"},
+    {k:"Culturas",v:"Colônias incolores no MacConkey com sorbitol"},
+  ],
+  questions:[
+    {
+      q:"Qual é o diagnóstico mais provável e qual o agente etiológico?",
+      opts:["Gastroenterite viral — Rotavírus","Síndrome Hemolítico-Urêmica (SHU) — E. coli O157:H7 (EHEC)","Disenteria — Shigella dysenteriae","Colite pseudomembranosa — Clostridium difficile"],
+      ans:1,
+      fb:"A tríade SHU = anemia hemolítica microangiopática (Hb↓ + esquizócitos) + trombocitopenia + IRA em criança após diarreia sanguinolenta por carne mal cozida = E. coli O157:H7 (EHEC). Colônias incolores no MacConkey com sorbitol (EHEC não fermenta sorbitol, diferente das outras E. coli)."
+    },
+    {
+      q:"Qual é o mecanismo pelo qual a bactéria causa lesão renal neste caso?",
+      opts:["Invasão direta do epitélio renal pela bactéria","Toxina Shiga (Stx) → lesão endotelial dos glomérulos → microangiopatia trombótica → IRA","Deposição de imunocomplexos como na GNPE","Hipotensão prolongada levando a necrose tubular aguda"],
+      ans:1,
+      fb:"A toxina Shiga (Stx1 e Stx2) liga-se ao receptor Gb3 (globotriaosilceramida) nas células endoteliais renais e intestinais → inibe síntese proteica → morte celular → microangiopatia trombótica → SHU. Os rins são os órgãos mais afetados pois têm alta expressão de Gb3."
+    },
+    {
+      q:"Qual é a conduta MAIS IMPORTANTE neste caso?",
+      opts:["Iniciar ciprofloxacino imediatamente para eliminar a bactéria","Suporte clínico intensivo (hidratação, diálise se necessário) — EVITAR antibióticos","Iniciar ampicilina + gentamicina","Administrar plasma fresco congelado e vitamina K"],
+      ans:1,
+      fb:"CONDUTA CRÍTICA: NÃO usar antibióticos na EHEC/SHU. Os antibióticos lisam as bactérias → maior liberação de toxina Shiga → piora da SHU. O tratamento é suporte: hidratação cuidadosa, controle de eletrólitos, diálise se IRA grave. Transfusão de hemácias se Hb < 6 g/dL."
+    }
+  ],
+  gabarito:`<strong>Diagnóstico:</strong> Síndrome Hemolítico-Urêmica (SHU) por E. coli O157:H7 (EHEC).<br><br>
+  <strong>Pontos-chave:</strong><ul>
+  <li>Tríade SHU: anemia hemolítica microangiopática + trombocitopenia + IRA</li>
+  <li>Fonte: carne moída mal cozida (reservatório bovino)</li>
+  <li>Diagnóstico: colônias incolores no MacConkey com D-sorbitol</li>
+  <li>NUNCA usar antibiótico — aumenta liberação de toxina Shiga</li>
+  <li>Toxina Shiga → receptor Gb3 → lesão endotelial renal</li></ul>`
+},
+
+// 2. PROTEUS
+{
+  bact:"Proteus mirabilis",
+  diff:"med",
+  diffLabel:"Médio",
+  title:"Homem com ITU de repetição e cálculo renal",
+  vignette:`<strong>Paciente:</strong> Homem de 58 anos, com histórico de 4 episódios de infecção urinária no último ano, sempre com culturas positivas para o mesmo agente. Queixa atual: disúria, polaciúria, dor lombar direita. Realizou ultrassonografia que evidenciou <strong>cálculo coraliforme</strong> no rim direito. Urina com odor fétido intenso.`,
+  exams:[
+    {k:"pH urinário",v:"8,2 (alcalino)"},
+    {k:"Nitrito",v:"Positivo"},
+    {k:"Leucocitúria",v:"+++"},
+    {k:"Urocultura",v:"Colônias incolores no MacConkey, swarming em ágar sangue"},
+    {k:"Urease",v:"Fortemente positiva +++"},
+    {k:"H₂S",v:"Positivo (TSI)"},
+  ],
+  questions:[
+    {
+      q:"Qual agente é responsável por este quadro e qual mecanismo explica o cálculo renal?",
+      opts:["E. coli — produção de biofilme na pelve renal","Proteus mirabilis — urease alcaliniza a urina precipitando cristais de estruvita","Klebsiella pneumoniae — produção de cápsula que obstrui o ureter","Pseudomonas aeruginosa — produção de alginato formando cálculos"],
+      ans:1,
+      fb:"Proteus mirabilis: urease degrada a ureia em NH₃ + CO₂ → alcaliniza a urina (pH>7) → precipitação de fosfato de magnésio e amônio (estruvita) = cálculo coraliforme. O swarming (migração em ondas no ágar sangue) e o odor fétido são características marcantes."
+    },
+    {
+      q:"Qual das seguintes características laboratoriais é patognomônica do agente identificado?",
+      opts:["Colônias rosas com brilho metálico verde no EMB","Fermentação de lactose no MacConkey","Swarming em ágar sangue + urease fortemente positiva + H₂S positivo","Diplococos intracelulares em neutrófilos"],
+      ans:2,
+      fb:"A tríade: swarming (migração em ondas concêntricas) + urease fortemente positiva + H₂S positivo (enegrecimento na picada do TSI) é característica de Proteus. Não fermenta lactose (colônias incolores no MacConkey). O odor fétido é também característico."
+    },
+    {
+      q:"Qual é a melhor abordagem terapêutica para este paciente?",
+      opts:["Apenas antibiótico (ampicilina) por 14 dias","Remoção do cálculo (litotripsia/cirurgia) + antibioticoterapia direcionada — sem remoção do cálculo a infecção não é curada","Apenas observação e aumento da ingestão hídrica","Nitrofurantoína por 3 dias"],
+      ans:1,
+      fb:"Cálculo de estruvita é um biofilme bacteriano calcificado. O antibiótico não penetra adequadamente no cálculo — a bactéria fica protegida e causa reinfecção. CONDUTA: remoção do cálculo (litotripsia extracorpórea ou nefrolitotomia) + antibiótico pós-procedimento. Proteus mirabilis é sensível a ampicilina (diferente de P. vulgaris)."
+    }
+  ],
+  gabarito:`<strong>Diagnóstico:</strong> ITU recorrente por Proteus mirabilis com nefrolitíase por estruvita (cálculo coraliforme).<br><br>
+  <strong>Pontos-chave:</strong><ul>
+  <li>Urease+++ → NH₃ → pH urinário alcalino → estruvita (MgNH₄PO₄)</li>
+  <li>Swarming em ágar sangue = movimento em ondas concêntricas</li>
+  <li>Não fermenta lactose → colônias incolores no MacConkey</li>
+  <li>Tratamento: REMOVER o cálculo + antibiótico (Ampicilina para P. mirabilis)</li>
+  <li>Sem remoção do cálculo = cura impossível (biofilme protege a bactéria)</li></ul>`
+},
+
+// 3. VIBRIO CHOLERAE
+{
+  bact:"Vibrio cholerae",
+  diff:"easy",
+  diffLabel:"Fácil",
+  title:"Surto de diarreia após enchente",
+  vignette:`<strong>Cenário:</strong> Após uma enchente em área periférica sem saneamento adequado, 12 pessoas da mesma comunidade adoecem simultaneamente. <strong>Paciente índice:</strong> Mulher de 32 anos, sem febre, com início súbito de vômitos e diarreia profusa há 6 horas. Fezes líquidas, inodoras, sem sangue e sem muco, com aspecto de <strong>"água de arroz"</strong>. Evolução rápida para desidratação grave: olhos encovados, turgor da pele diminuído, hipotensão.`,
+  exams:[
+    {k:"Frequência cardíaca",v:"118 bpm"},
+    {k:"PA",v:"80/50 mmHg"},
+    {k:"Fezes",v:"Líquidas, incolores, sem sangue"},
+    {k:"Temperatura",v:"36,8°C (afebril)"},
+    {k:"Microscopia",v:"Bacilos curvos com motilidade em \"estrela cadente\""},
+    {k:"Crescimento",v:"Meio TCBS: colônias amarelas"},
+  ],
+  questions:[
+    {
+      q:"Qual é o diagnóstico e qual o mecanismo da diarreia?",
+      opts:["Disenteria amebiana — invasão da mucosa intestinal","Cólera por Vibrio cholerae — toxina colérica ativa adenilato ciclase → ↑AMPc → secreção de Cl⁻ e água","Gastroenterite por Salmonella — invasão da lâmina própria","Colite por EHEC — toxina Shiga lesa endotélio colônico"],
+      ans:1,
+      fb:"Cólera: diarreia em água de arroz + sem febre + desidratação rápida + contexto epidemiológico (enchente/saneamento precário) = Vibrio cholerae. A toxina colérica (CT): subunidade B liga-se ao GM1 → subunidade A ativa adenilato ciclase permanentemente → ↑↑ AMPc → abertura de canal CFTR (Cl⁻) → saída massiva de água e eletrólitos. Secreção, não invasão."
+    },
+    {
+      q:"Qual é a PRIORIDADE ABSOLUTA no tratamento desta paciente?",
+      opts:["Antibioticoterapia imediata com doxiciclina IV","Reidratação oral ou IV vigorosa — é o tratamento principal e salva a vida","Internação em UTI e monitorização hemodinâmica invasiva","Antidiarreicos (loperamida) para reduzir as perdas"],
+      ans:1,
+      fb:"REIDRATAÇÃO é o pilar absoluto do tratamento da cólera. Casos leves-moderados: SRO (Soro de Reidratação Oral da OMS). Casos graves com choque hipovolêmico (como neste caso): Ringer Lactato IV agressivo. Antibiótico (doxiciclina) é adjuvante — reduz a duração da diarreia mas NÃO substitui a reidratação. Antidiarreicos são CONTRAINDICADOS."
+    },
+    {
+      q:"Qual característica diferencia Vibrio cholerae de outras causas de diarreia secretora?",
+      opts:["Produção de toxina Shiga que lesa o endotélio","Bacilo curvo ('vírgula'), halófilo, cresce em TCBS (col. amarelas), motilidade em 'estrela cadente', tolera pH alcalino","Diplococo Gram-negativo intracelular","Esporo altamente resistente ao calor"],
+      ans:1,
+      fb:"V. cholerae: morfologia de vírgula (bacilo curvo) + monotríquio polar (motilidade em 'estrela cadente' ou 'disparo de chumbo' na microscopia) + halófilo (tolera sal, exceto V. cholerae O1/O139 que tolera menos) + crescimento ótimo em pH alcalino (água peptonada alcalina) + TCBS: colônias amarelas (fermenta sacarose). Oxidase positiva."
+    }
+  ],
+  gabarito:`<strong>Diagnóstico:</strong> Cólera por Vibrio cholerae (O1 ou O139).<br><br>
+  <strong>Pontos-chave:</strong><ul>
+  <li>Diarreia em água de arroz + SEM febre + desidratação rápida = cólera</li>
+  <li>Toxina colérica: subunidade B (GM1) + subunidade A (adenilato ciclase) → ↑AMPc → Cl⁻/H₂O</li>
+  <li>TRATAMENTO: reidratação (prioridade) + doxiciclina (encurta duração)</li>
+  <li>TCBS: colônias amarelas (V. cholerae) vs colônias azuis (V. parahaemolyticus)</li>
+  <li>Morfologia: bacilo curvo "em vírgula", motilidade em estrela cadente</li></ul>`
+},
+
+// 4. CAMPYLOBACTER
+{
+  bact:"Campylobacter jejuni",
+  diff:"hard",
+  diffLabel:"Difícil",
+  title:"Paralisia ascendente após gastroenterite",
+  vignette:`<strong>Paciente:</strong> Homem de 28 anos, previamente saudável. Há 3 semanas teve episódio de gastroenterite com febre (38,5°C), diarreia sanguinolenta e cólicas intensas — resolveu espontaneamente em 7 dias. Agora retorna com <strong>fraqueza progressiva nos membros inferiores iniciada há 5 dias</strong>, evoluindo para membros superiores. Hoje apresenta dificuldade para respirar. Reflexos tendinosos profundos abolidos. Sem alteração da consciência.`,
+  exams:[
+    {k:"LCR",v:"Dissociação albumino-citológica (proteína ↑, células normais)"},
+    {k:"Eletroneuromiografia",v:"Polirradiculoneuropatia desmielinizante"},
+    {k:"Sorologia",v:"IgG anti-gangliosídeo GM1 positivo"},
+    {k:"Cultura prévia de fezes",v:"Colônias a 42°C em microaerofilia — \"asa de gaivota\""},
+    {k:"SpO₂",v:"88% (hipóxia)"},
+  ],
+  questions:[
+    {
+      q:"Qual é o diagnóstico neurológico e qual o agente infeccioso precipitante?",
+      opts:["Miastenia gravis — Campylobacter jejuni","Síndrome de Guillain-Barré (SGB) — Campylobacter jejuni (mais comum causa infecciosa)","Esclerose múltipla — Herpes zoster","Botulismo — Clostridium botulinum"],
+      ans:1,
+      fb:"SGB = polirradiculoneuropatia aguda desmielinizante: paralisia ascendente flácida + arreflexia + dissociação albumino-citológica no LCR (proteína alta, sem células). Campylobacter jejuni é a causa infecciosa mais comum de SGB no mundo (20–40% dos casos). Mecanismo: mimetismo molecular — o LOS (lipooligossacarídeo) da bactéria imita gangliosídeos GM1 → anticorpos cruzados lesam mielina."
+    },
+    {
+      q:"Por que a SpO₂ de 88% é uma emergência neste contexto?",
+      opts:["O paciente tem pneumonia bacteriana concomitante","A paralisia ascendente atingiu os músculos respiratórios — risco de parada respiratória iminente","O Campylobacter produz toxina que afeta o centro respiratório","É um achado esperado e não preocupante na SGB"],
+      ans:1,
+      fb:"A SGB pode ascender até os músculos respiratórios (diafragma, intercostais) e nervos cranianos → insuficiência respiratória. 30% dos pacientes precisam de ventilação mecânica. SpO₂ 88% = EMERGÊNCIA. Monitorar CVF (capacidade vital forçada): se <20 mL/kg ou queda rápida → intubar. CRITÉRIOS 20-30-40: CVF<20, PiMax<30, PeMax<40 = intubação."
+    },
+    {
+      q:"Qual é a característica laboratorial que identifica Campylobacter jejuni na cultura?",
+      opts:["Cresce em aerobiose a 37°C, colônias rosas no MacConkey","Cresce em microaerofilia (5% O₂) a 42°C, morfologia em 'asa de gaivota', oxidase positiva","Cresce em meio TCBS, colônias amarelas","Cresce em meio alcalino, bacilo curvo em vírgula"],
+      ans:1,
+      fb:"Campylobacter jejuni: microaerófilo (5–10% O₂, 10% CO₂) + temperatura ótima 42°C (termofílico — esta temperatura seleciona o Campylobacter e inibe outras bactérias) + morfologia espiral em 'asa de gaivota' ou saca-rolhas + oxidase positiva + hipurato positivo (C. jejuni). Meio seletivo: Skirrow ou CAMPY-BAP."
+    }
+  ],
+  gabarito:`<strong>Diagnósticos:</strong> Síndrome de Guillain-Barré pós-infecciosa por Campylobacter jejuni.<br><br>
+  <strong>Pontos-chave:</strong><ul>
+  <li>SGB = paralisia ascendente + arreflexia + dissociação albumino-citológica no LCR</li>
+  <li>Campylobacter jejuni = causa infecciosa mais comum de SGB no mundo</li>
+  <li>Mecanismo: mimetismo molecular LOS/GM1 → anticorpos anti-gangliosídeo</li>
+  <li>Tratamento SGB: IVIG (imunoglobulina IV) ou plasmaférese + suporte ventilatório</li>
+  <li>Cultura: 42°C + microaerofilia + morfologia asa de gaivota</li></ul>`
+},
+
+// 5. H. PYLORI
+{
+  bact:"Helicobacter pylori",
+  diff:"med",
+  diffLabel:"Médio",
+  title:"Epigastralgia crônica e úlcera duodenal",
+  vignette:`<strong>Paciente:</strong> Mulher de 45 anos, queixa de <strong>dor epigástrica em queimação há 8 meses</strong>, que piora em jejum e melhora com alimentação. Uso de anti-ácidos sem prescrição. Nega AINE. Endoscopia: úlcera duodenal de 1,2 cm com base limpa. Biópsia antral coletada. Teste rápido da urease na biópsia: <strong>positivo em 2 minutos</strong> (virou amarelo → rosa/vermelho).`,
+  exams:[
+    {k:"Endoscopia",v:"Úlcera duodenal 1,2 cm, gastrite antral"},
+    {k:"Urease rápida (biópsia)",v:"POSITIVO (mudança de cor imediata)"},
+    {k:"Histologia",v:"Gastrite crônica ativa, bacilos espiralados na mucosa"},
+    {k:"VDRL",v:"Negativo (pedido por engano — não relevante)"},
+    {k:"Hb",v:"11,8 g/dL (anemia leve)"},
+  ],
+  questions:[
+    {
+      q:"Qual é o agente etiológico e como ele sobrevive no ambiente ácido gástrico?",
+      opts:["Campylobacter jejuni — produce biofilme protetor","Helicobacter pylori — produz urease que converte ureia em NH₃, neutralizando o ácido local","Vibrio cholerae — tolera naturalmente pH ácido","Proteus mirabilis — alcaliniza o meio gástrico via H₂S"],
+      ans:1,
+      fb:"H. pylori produz urease em grande quantidade: ureia → NH₃ + CO₂. O NH₃ neutraliza o ácido ao redor da bactéria, criando um microambiente de pH neutro. É o mecanismo de sobrevivência no pH gástrico (1,5–3,5). Base do teste respiratório: paciente ingere ureia marcada com ¹³C → H. pylori a quebra → ¹³CO₂ no ar expirado."
+    },
+    {
+      q:"Qual é a associação mais grave do H. pylori que classifica-o como carcinógeno pela OMS?",
+      opts:["Síndrome de Zollinger-Ellison (gastrinoma)","Adenocarcinoma gástrico e Linfoma MALT — classificado como carcinógeno Grupo 1 pela OMS/IARC","Esofagite de reflux (DRGE)","Doença de Ménétrier (gastropatia hipertrófica)"],
+      ans:1,
+      fb:"H. pylori é carcinógeno Grupo 1 (definitivo) pela IARC/OMS. Gastrite crônica → metaplasia intestinal → displasia → adenocarcinoma gástrico (tipo intestinal). Também causa 95% dos Linfomas MALT gástricos — que podem REGREDIR completamente com erradicação do H. pylori (tratamento único de um linfoma com antibiótico!)."
+    },
+    {
+      q:"Qual é o esquema de erradicação de primeira linha e por quanto tempo?",
+      opts:["Metronidazol em monoterapia por 7 dias","IBP + Claritromicina + Amoxicilina por 14 dias (tripla terapia)","Apenas dieta sem glúten e antiácidos","Ciprofloxacino + Metronidazol por 10 dias"],
+      ans:1,
+      fb:"Tripla terapia padrão: IBP (omeprazol/pantoprazol) 2x/dia + Claritromicina 500mg 2x/dia + Amoxicilina 1g 2x/dia × 14 dias. O IBP reduz a acidez → melhora a ação dos antibióticos. Resistência à claritromicina crescente: se resistência >15% na região → usar quadrupla terapia com bismuto. Confirmar erradicação com teste respiratório 4 semanas após término."
+    }
+  ],
+  gabarito:`<strong>Diagnóstico:</strong> Úlcera duodenal por Helicobacter pylori.<br><br>
+  <strong>Pontos-chave:</strong><ul>
+  <li>Urease++++ = mecanismo de sobrevivência no estômago</li>
+  <li>Carcinógeno Grupo 1 OMS: adenocarcinoma gástrico + Linfoma MALT</li>
+  <li>MALT pode regredir com erradicação do H. pylori</li>
+  <li>Tripla terapia: IBP + Claritromicina + Amoxicilina × 14 dias</li>
+  <li>Confirmar cura: teste respiratório com ¹³C-ureia (4 semanas após)</li></ul>`
+},
+
+// 6. NEISSERIA
+{
+  bact:"Neisseria",
+  diff:"med",
+  diffLabel:"Médio",
+  title:"Adolescente com meningite e rash purpúrico",
+  vignette:`<strong>Paciente:</strong> Adolescente de 17 anos, vindo da escola. Início súbito há 12 horas: <strong>febre alta (39,8°C), cefaleia intensa, rigidez de nuca e fotofobia</strong>. Na última hora apareceu <strong>rash petequial que está evoluindo para púrpura</strong> nos membros inferiores e tronco. Sinal de Kernig e Brudzinski positivos. PA: 85/50 mmHg.`,
+  exams:[
+    {k:"LCR",v:"Turvo, Gram: diplococos negativos intracelulares"},
+    {k:"Glicose LCR",v:"20 mg/dL (baixa)"},
+    {k:"Proteína LCR",v:"380 mg/dL (alta)"},
+    {k:"Leucócitos LCR",v:"8.500 (predomínio de neutrófilos)"},
+    {k:"Cultura LCR",v:"Crescimento em ágar chocolate — oxidase positiva, fermenta glicose E maltose"},
+    {k:"Plaquetas",v:"48.000 (↓↓)"},
+  ],
+  questions:[
+    {
+      q:"Qual é o diagnóstico e o agente etiológico?",
+      opts:["Meningite tuberculosa — Mycobacterium tuberculosis","Meningite bacteriana por Neisseria meningitidis — LCR purulento + diplococos Gram(-) + rash purpúrico","Meningite viral — enterovírus","Meningite por Listeria — gestante ou imunosuprimido"],
+      ans:1,
+      fb:"Neisseria meningitidis: tríade meningite (febre + rigidez de nuca + fotofobia) + rash petequial/purpúrico (vasculite por LPS e complexos imunes) + LCR bacteriano (turvo, glicose baixa, proteína alta, neutrofilia) + diplococos Gram(-) intracelulares. Fermenta glicose E maltose (diferencial com gonococo que só fermenta glicose)."
+    },
+    {
+      q:"A evolução para choque com plaquetopenia sugere qual complicação temida?",
+      opts:["Síndrome de Stevens-Johnson por medicamentos","Síndrome de Waterhouse-Friderichsen — hemorragia bilateral das adrenais por sepse meningocócica","Púrpura Trombocitopênica Imune (PTI)","Leucemia aguda com infiltração meníngea"],
+      ans:1,
+      fb:"Síndrome de Waterhouse-Friderichsen: sepse meningocócica fulminante → coagulação intravascular disseminada (CIVD) → hemorragia bilateral das adrenais → insuficiência adrenal aguda → choque refratário. Rash purpúrico extenso + choque + plaquetopenia = mortalidade > 50% sem tratamento imediato. Tratar com ceftriaxona + suporte hemodinâmico + hidrocortisona."
+    },
+    {
+      q:"Qual é a conduta para os contactantes próximos deste paciente?",
+      opts:["Nenhuma — a meningite meningocócica não é transmissível","Quimioprofilaxia com rifampicina ou ciprofloxacino para contactantes íntimos (<1m, >8h ou exposição a secreções)","Vacinação meningocócica como único recurso","Isolamento hospitalar de todos os contactantes por 10 dias"],
+      ans:1,
+      fb:"Quimioprofilaxia (eliminar portação nasofaríngea): Rifampicina 600mg 2x/dia × 2 dias (adultos) OU Ciprofloxacino 500mg dose única (adultos, não grávidas) OU Ceftriaxona 250mg IM dose única (grávidas). Indicada para contactantes íntimos: conviventes domiciliares, colegas de quarto, exposição a secreções. O próprio paciente também recebe profilaxia se tratado com ampicilina (não elimina portação)."
+    }
+  ],
+  gabarito:`<strong>Diagnóstico:</strong> Meningite meningocócica por Neisseria meningitidis com Síndrome de Waterhouse-Friderichsen.<br><br>
+  <strong>Pontos-chave:</strong><ul>
+  <li>N. meningitidis: fermenta glicose + maltose (gonococo só glicose)</li>
+  <li>Rash purpúrico + choque = Waterhouse-Friderichsen (hemorragia adrenal)</li>
+  <li>LCR bacteriano: turvo, glicose↓, proteína↑, neutrófilos, diplococos Gram(-)</li>
+  <li>Tratamento: Ceftriaxona IV + dexametasona + suporte</li>
+  <li>Profilaxia contactantes: Rifampicina ou Ciprofloxacino (dose única)</li></ul>`
+},
+
+// 7. BARTONELLA
+{
+  bact:"Bartonella henselae",
+  diff:"easy",
+  diffLabel:"Fácil",
+  title:"Criança com íngua após arranhão de gato",
+  vignette:`<strong>Paciente:</strong> Menina de 9 anos, previamente saudável. Há 3 semanas apresentou pequena <strong>pápula eritematosa no antebraço direito</strong> após arranhão de um gatinho de 3 meses. Na última semana desenvolveu <strong>aumento doloroso dos linfonodos axilares direitos</strong> (2 × 3 cm), com baixa febre (37,5°C) e mal-estar. Sem supuração. A mãe relata que a criança brinca com o gatinho diariamente.`,
+  exams:[
+    {k:"Leucócitos",v:"11.200 (leve leucocitose)"},
+    {k:"VHS/PCR",v:"Moderadamente elevados"},
+    {k:"Sorologia",v:"IgG anti-Bartonella henselae positivo (título 1:256)"},
+    {k:"Biópsia linfonodo",v:"Granuloma com necrose central, bactérias pleomórficas (Warthin-Starry)"},
+    {k:"Hemoculturas",v:"Negativas"},
+  ],
+  questions:[
+    {
+      q:"Qual é o diagnóstico e qual é o vetor de transmissão da bactéria para o gato?",
+      opts:["Toxoplasmose — transmitida pelo contato direto com o gato","Doença da Arranhadura do Gato (Bartonella henselae) — transmitida ao gato pela pulga Ctenocephalides felis","Esporotricose — fungo inoculado pelo arranhão","Pasteurellose — mordida ou arranhão de gato"],
+      ans:1,
+      fb:"Doença da Arranhadura do Gato: B. henselae é transmitida entre gatos pela pulga Ctenocephalides felis (fezes da pulga contaminam as garras do gato). O humano se infecta pelo arranhão ou mordida do gato (não pela picada da pulga diretamente). Gatinhos jovens são mais frequentemente bacteriêmicos e transmissores."
+    },
+    {
+      q:"Este caso seria diferente se a paciente tivesse HIV com CD4 < 100 células/µL. Qual seria a manifestação esperada?",
+      opts:["Meningite por Bartonella — meningite purulenta","Angiomatose bacilar — lesões vasculares cutâneas proliferativas (papulonoduláres, vermelhas) + peliose hepática","Osteomielite difusa por Bartonella","Pneumonia por Bartonella — quadro idêntico à pneumonia por Klebsiella"],
+      ans:1,
+      fb:"Em imunossuprimidos (HIV, CD4<100): B. henselae causa Angiomatose Bacilar (AB) — lesões vasculares cutâneas proliferativas (semelhantes ao sarcoma de Kaposi, mas distintas histologicamente) e/ou Peliose Hepática (espaços vasculares no fígado cheios de sangue). Tratamento: Eritromicina ou Doxiciclina por semanas/meses (não cura — apenas supressão)."
+    },
+    {
+      q:"Qual é o tratamento para esta criança imunocompetente?",
+      opts:["Ceftriaxona IV por 14 dias","Geralmente autolimitada (resolução em semanas) — em casos graves ou prolongados: Azitromicina 5 dias","Drenagem cirúrgica obrigatória do linfonodo","Doxiciclina por 6 semanas (igual à Brucella)"],
+      ans:1,
+      fb:"Em imunocompetentes: DAG é autolimitada, resolve em 2–4 meses. Antibiótico em casos graves, linfadenopatia extensa, febre prolongada ou imunossupressão: Azitromicina × 5 dias (mais estudada em crianças) ou Doxiciclina (>8 anos). NÃO drenar o linfonodo de rotina (risco de fístula). Aspiração apenas em caso de flutuação intensa com desconforto."
+    }
+  ],
+  gabarito:`<strong>Diagnóstico:</strong> Doença da Arranhadura do Gato por Bartonella henselae.<br><br>
+  <strong>Pontos-chave:</strong><ul>
+  <li>Transmissão: B. henselae → gato via pulga Ctenocephalides felis → humano via arranhão</li>
+  <li>Clínica: pápula no local → linfadenopatia regional dolorosa ipsilateral</li>
+  <li>Diagnóstico: sorologia (IgG anti-Bartonella) + histologia (granuloma, Warthin-Starry)</li>
+  <li>Imunocompetente: autolimitada / Azitromicina se grave</li>
+  <li>HIV/imunossuprimido: Angiomatose Bacilar + Peliose Hepática</li></ul>`
+},
+
+// 8. BRUCELLA
+{
+  bact:"Brucella melitensis",
+  diff:"med",
+  diffLabel:"Médio",
+  title:"Veterinário com febre ondulante",
+  vignette:`<strong>Paciente:</strong> Homem de 38 anos, veterinário que trabalha com caprinos e bovinos. Há 6 semanas com <strong>febre que oscila em ondas</strong>, chegando a 39,5°C à tarde e cedendo parcialmente à noite com <strong>sudorese intensa de odor característico ("palha molhada")</strong>. Refere artralgia difusa, lombalgia intensa e perda de 6 kg. Há 2 meses assistiu ao parto de uma cabra com aborto.`,
+  exams:[
+    {k:"Hemograma",v:"Leucopenia + linfocitose relativa"},
+    {k:"VHS/PCR",v:"Elevados"},
+    {k:"Hemoculturas",v:"Crescimento lento após 21 dias (cocobacilo Gram-)"},
+    {k:"Sorologia (Rosa de Bengala)",v:"Positivo (triagem)"},
+    {k:"SAT (soroaglutinação)",v:"Título ≥ 1:160 (diagnóstico)"},
+    {k:"USG abdominal",v:"Hepatoesplenomegalia"},
+  ],
+  questions:[
+    {
+      q:"Qual é o diagnóstico e qual espécie de Brucella é a mais virulenta para humanos?",
+      opts:["Febre tifóide — Salmonella typhi (veterinário exposto a animais)","Brucelose — Brucella melitensis (caprinos) é a mais virulenta para humanos","Leptospirose — Leptospira interrogans (contato com urina animal)","Febre Q — Coxiella burnetii (partos de animais)"],
+      ans:1,
+      fb:"Brucelose: febre ondulante + sudorese noturna com odor de palha molhada + artralgia + hepatoesplenomegalia + exposição a animais (parto/aborto) ou leite não pasteurizado. B. melitensis (caprinos/ovinos) = mais virulenta. B. abortus (bovinos), B. suis (suínos), B. canis (cães). A inalação de aerossóis de líquido amniótico em partos de animais é via de transmissão clássica para veterinários."
+    },
+    {
+      q:"Por que a Brucella é difícil de erradicar e causa infecções crônicas?",
+      opts:["Produz esporos resistentes ao calor","É um patógeno intracelular facultativo — sobrevive dentro de macrófagos, protegida dos antibióticos e do sistema imune","Produz uma cápsula polissacarídica espessa que bloqueia a fagocitose","Tem parede celular sem peptidoglicano (resistente aos beta-lactâmicos)"],
+      ans:1,
+      fb:"Brucella é intracelular facultativa: fagocitada por macrófagos → inibe a fusão fagossomo-lisossomo → sobrevive e se replica dentro da célula. Esta localização intracelular explica: (1) necessidade de antibióticos que penetram células (doxiciclina, rifampicina), (2) necessidade de combinação (monoterapia = alta recidiva), (3) duração prolongada (6 semanas), (4) tendência à cronicidade."
+    },
+    {
+      q:"Qual é o tratamento correto e por quanto tempo?",
+      opts:["Amoxicilina-Clavulanato por 7 dias","Doxiciclina 100mg 2x/dia × 6 semanas + Rifampicina 600mg/dia × 6 semanas","Ciprofloxacino em monoterapia por 14 dias","Ceftriaxona IV × 21 dias"],
+      ans:1,
+      fb:"Brucelose: SEMPRE combinação (monoterapia → recidiva >30%). 1ª linha adultos: Doxiciclina 6 semanas + Rifampicina 6 semanas. Alternativa (OMS): Doxiciclina + Estreptomicina (mais eficaz, menos prático). Gestantes: TMP-SMX + Rifampicina (tetraciclinas contraindicadas). Espondilodiscite/neurobrucelose: Doxiciclina + Rifampicina + Estreptomicina × 3 meses."
+    }
+  ],
+  gabarito:`<strong>Diagnóstico:</strong> Brucelose por Brucella melitensis.<br><br>
+  <strong>Pontos-chave:</strong><ul>
+  <li>Febre ondulante + sudorese "palha molhada" + artralgia + exposição animal = brucelose</li>
+  <li>B. melitensis (cabras) = mais virulenta para humanos</li>
+  <li>Intracelular facultativo → monoterapia = recidiva → SEMPRE combinação</li>
+  <li>Tratamento: Doxiciclina 6s + Rifampicina 6s</li>
+  <li>Diagnóstico: hemocultura (lenta, até 3-4 semanas) + SAT ≥ 1:160</li></ul>`
+},
+
+// 9. PASTEURELLA
+{
+  bact:"Pasteurella multocida",
+  diff:"easy",
+  diffLabel:"Fácil",
+  title:"Celulite após mordida de gato",
+  vignette:`<strong>Paciente:</strong> Mulher de 52 anos, diabética. Mordida no dorso da mão esquerda por seu gato doméstico há <strong>18 horas</strong>. Não lavou a ferida adequadamente. Agora com <strong>dor intensa, eritema quente e edema rapidamente progressivo</strong> em toda a mão, com discreta secreção serosa no local da mordida. Temperatura: 38,2°C. Dificuldade para movimentar os dedos por dor.`,
+  exams:[
+    {k:"PCR",v:"48 mg/L (elevado)"},
+    {k:"Leucócitos",v:"14.800 (leucocitose + desvio à esquerda)"},
+    {k:"Glicemia",v:"248 mg/dL"},
+    {k:"Rx mão",v:"Partes moles: edema. Sem gás. Sem lesão óssea (por enquanto)"},
+    {k:"Swab ferida",v:"Cocobacilo Gram(-), oxidase(+), cresce em MacConkey"},
+  ],
+  questions:[
+    {
+      q:"Qual agente é o mais provável e qual característica clínica é marcante?",
+      opts:["Staphylococcus aureus — instalação gradual em 3–5 dias","Pasteurella multocida — celulite rapidamente progressiva em < 24h após mordida de gato","Streptococcus pyogenes — eritema serpiginoso (erisipela)","Capnocytophaga canimorsus — mordida de cão em asplênico"],
+      ans:1,
+      fb:"Pasteurella multocida: instalação RÁPIDA (<24h) após mordida/arranhão de gato (ou cão) é a característica mais importante. Os dentes finos e longos do gato inoculam P. multocida profundamente (tendões, periósteo) — celulite + risco de tenossinovite + osteomielite. Diabéticos e imunossuprimidos têm maior risco de complicações graves e sepse."
+    },
+    {
+      q:"Qual é o antibiótico de primeira escolha para mordeduras de animais?",
+      opts:["Cefalexina (cefalosporina de 1ª geração) em monoterapia","Amoxicilina-Clavulanato — cobre Pasteurella, Staphylococcus, Streptococcus e anaeróbios","Ciprofloxacino — ampla cobertura para Gram-negativos","Metronidazol — para cobrir anaeróbios da boca do animal"],
+      ans:1,
+      fb:"Amoxicilina-Clavulanato é o antibiótico de escolha para mordeduras de animais porque cobre: Pasteurella multocida (principal), Staphylococcus spp., Streptococcus spp. e anaeróbios orais (Fusobacterium, Prevotella). Cefalexina NÃO cobre Pasteurella adequadamente — ERRO CLÁSSICO. Alergia à penicilina: Doxiciclina ou TMP-SMX (não usar macrolídeos — resistência crescente de Pasteurella)."
+    },
+    {
+      q:"Além do antibiótico, quais outras medidas são essenciais no manejo inicial?",
+      opts:["Apenas prescrever antibiótico oral e orientar repouso domiciliar","Limpeza local rigorosa com soro fisiológico + debridamento + avaliar vacinação antitetânica + profilaxia antirrábica se necessário + internação se celulite grave","Sutura imediata para fechar a ferida e evitar infecção","Aplicação de iodo diretamente na ferida e bandagem compressiva"],
+      ans:1,
+      fb:"Manejo completo: (1) LIMPEZA RIGOROSA da ferida com SF + sabão + irrigação sob pressão; (2) NÃO suturar primariamente (exceto face) — aumenta risco de infecção anaeróbia; (3) Avaliar antitetânica (última dose?); (4) Profilaxia antirrábica conforme protocolo local (gatos domésticos vacinados: observar 10 dias); (5) Amoxicilina-Clavulanato; (6) Internação se celulite grave, diabetes descontrolado ou sinal de infecção profunda."
+    }
+  ],
+  gabarito:`<strong>Diagnóstico:</strong> Celulite por Pasteurella multocida pós-mordida de gato.<br><br>
+  <strong>Pontos-chave:</strong><ul>
+  <li>Início < 24h = característico de Pasteurella (Staph. aureus demora 3-5 dias)</li>
+  <li>Gatos: dentes finos → inoculação profunda → tenossinovite + osteomielite</li>
+  <li>Tratamento: Amoxicilina-Clavulanato (NÃO cefalexina isolada)</li>
+  <li>Não suturar feridas de mordida (exceto face)</li>
+  <li>Sempre avaliar: antitetânica + antirrábica + limpeza rigorosa</li></ul>`
+},
+
+// 10. GARDNERELLA
+{
+  bact:"Gardnerella vaginalis",
+  diff:"easy",
+  diffLabel:"Fácil",
+  title:"Corrimento vaginal com odor de peixe",
+  vignette:`<strong>Paciente:</strong> Mulher de 27 anos, sexualmente ativa. Queixa de <strong>corrimento vaginal branco-acinzentado, homogêneo, aderente às paredes vaginais</strong> há 2 semanas, com <strong>odor desagradável que piora após relação sexual e durante a menstruação</strong>. Nega prurito intenso. Sem dispareunia. Ao exame: pH vaginal 5,2.`,
+  exams:[
+    {k:"pH vaginal",v:"5,2 (>4,5) ↑"},
+    {k:"Teste das aminas (KOH 10%)",v:"POSITIVO — odor de peixe intenso"},
+    {k:"Microscopia a fresco",v:"Clue cells: células epiteliais recobertas por bactérias"},
+    {k:"Lactobacillus",v:"Escassos (flora alterada)"},
+    {k:"Trichomonas",v:"Ausente"},
+    {k:"Hifas/pseudo-hifas",v:"Ausentes"},
+  ],
+  questions:[
+    {
+      q:"Qual é o diagnóstico e quantos critérios de Amsel estão presentes neste caso?",
+      opts:["Candidíase vaginal — 2 critérios de Amsel","Vaginose Bacteriana por Gardnerella vaginalis — 3 ou 4 critérios de Amsel presentes (corrimento homogêneo + pH>4,5 + aminas positivo + clue cells)","Tricomoníase — Trichomonas vaginalis","Cervicite por Neisseria gonorrhoeae"],
+      ans:1,
+      fb:"Critérios de Amsel (3/4 = diagnóstico): ✅ Corrimento branco-acinzentado homogêneo aderente; ✅ pH>4,5 (5,2 no caso); ✅ Teste de aminas positivo (odor de peixe com KOH); ✅ Clue cells no exame a fresco. TODOS os 4 critérios estão presentes. O odor piora após relação e na menstruação pois o sêmen e o sangue menstrual elevam o pH, liberando aminas voláteis (putrescina, cadaverina)."
+    },
+    {
+      q:"O que são as 'clue cells' e por que são o achado mais específico da vaginose bacteriana?",
+      opts:["Neutrófilos repletos de bactérias — indicam infecção invasiva","Células epiteliais vaginais com bordas completamente recobertas por G. vaginalis, conferindo aspecto granulado e bordos irregulares — patognomônicas de VB","Células gigantes com inclusões virais — indicam HPV","Esporos e pseudo-hifas — indicam Candida"],
+      ans:1,
+      fb:"Clue cells = células epiteliais escamosas vaginais densamente aderidas por G. vaginalis (e outros anaeróbios) em toda a superfície → bordos 'apagados', granulares, irregulares. Visíveis no microscópio óptico sem coloração. Presença de >20% de clue cells no esfregaço = critério de Amsel mais específico para VB. Distingue de candidíase (hifas) e tricomoníase (protozoário flagelado móvel)."
+    },
+    {
+      q:"Esta paciente está no 1º trimestre de gravidez. Qual é a importância do tratamento e o esquema indicado?",
+      opts:["Não tratar — a VB resolve espontaneamente na gravidez e o tratamento é contraindicado","Tratar obrigatoriamente — VB na gravidez aumenta risco de parto prematuro, RPM e endometrite pós-parto. Esquema: Metronidazol VO 250mg 3x/dia × 7 dias","Usar apenas clindamicina tópica — metronidazol é teratogênico","Tratar apenas no 3º trimestre"],
+      ans:1,
+      fb:"VB na gravidez: associada a parto prematuro, rotura prematura de membranas (RPM), corioamnionite e endometrite puerperal. TRATAR SEMPRE na gestante. Metronidazol VO é seguro no 2º e 3º trimestres (evitar no 1º trimestre por precaução: usar Clindamicina vaginal). Tratamento: Metronidazol 250mg 3x/dia × 7 dias VO ou Clindamicina 300mg 2x/dia × 7 dias. A parceria sexual não precisa ser tratada (VB não é IST clássica)."
+    }
+  ],
+  gabarito:`<strong>Diagnóstico:</strong> Vaginose Bacteriana por Gardnerella vaginalis.<br><br>
+  <strong>Pontos-chave:</strong><ul>
+  <li>Critérios de Amsel (3/4): corrimento homogêneo + pH>4,5 + aminas+ + clue cells</li>
+  <li>Clue cells = células epiteliais cobertas por bactérias = mais específico</li>
+  <li>Odor piora com sêmen/menstruação (pH sobe → aminas voláteis)</li>
+  <li>Tratamento: Metronidazol 500mg 2x/dia × 7 dias (ou gel vaginal)</li>
+  <li>Gestante: tratar sempre (risco de parto prematuro + RPM)</li></ul>`
+},
+
+// 11. TREPONEMA PALLIDUM
+{
+  bact:"Treponema pallidum",
+  diff:"hard",
+  diffLabel:"Difícil",
+  title:"IST com úlcera genital e rash palmoplantar",
+  vignette:`<strong>Paciente:</strong> Homem de 24 anos, múltiplos parceiros sexuais. Há 3 semanas apresentou <strong>úlcera no pênis, indolor, com base endurecida e bordos regulares</strong>, que regrediu espontaneamente sem tratamento. Agora, há 5 dias com <strong>rash maculopapular disseminado incluindo palmas e plantas</strong>, febre baixa (37,6°C), cefaleia e linfadenopatia generalizada. Nega uso de medicamentos novos.`,
+  exams:[
+    {k:"VDRL",v:"Reagente — título 1:64"},
+    {k:"FTA-ABS",v:"Positivo (reagente)"},
+    {k:"HIV",v:"Negativo"},
+    {k:"Hep B/C",v:"Negativos"},
+    {k:"Campo escuro (úlcera prévia)",v:"Espiroquetas móveis (realizado na 1ª consulta)"},
+    {k:"LCR",v:"Não coletado (sem sintomas neurológicos)"},
+  ],
+  questions:[
+    {
+      q:"Qual é o estágio atual da doença e o que representou a úlcera prévia?",
+      opts:["Sífilis primária — o rash atual é reinfecção","Sífilis secundária — a úlcera curada foi o cancro duro (sífilis primária), o rash palmoplantar atual é a sífilis secundária","Sífilis terciária — goma sifilítica","Cancroide — Haemophilus ducreyi (úlcera dolorosa)"],
+      ans:1,
+      fb:"Evolução clássica: 1. Sífilis primária: cancro duro (úlcera indolor, base endurecida, bordos regulares + adenopatia regional indolor) → resolve espontaneamente em 3–8 semanas. 2. Sífilis secundária (6–8 semanas depois): roséola sifilítica (rash maculopapular PALMOPLANTAR — muito característico) + condiloma lata + alopecia em clareira + febre + linfadenopatia generalizada. Stage 2 = máxima transmissibilidade."
+    },
+    {
+      q:"Como interpretar os resultados sorológicos: VDRL 1:64 positivo + FTA-ABS positivo?",
+      opts:["VDRL positivo = diagnóstico definitivo, FTA-ABS é confirmatório mas desnecessário","VDRL (não treponêmico) = triagem e monitorização do tratamento (título cai após cura); FTA-ABS (treponêmico) = confirmatório, permanece positivo para a vida mesmo após cura","Ambos os testes são equivalentes e intercambiáveis","VDRL 1:64 sugere sífilis terciária — títulos altos = doença avançada"],
+      ans:1,
+      fb:"Testes NÃO TREPONÊMICOS (VDRL, RPR): detectam anticorpos anticardiolipina (não específicos de T. pallidum). Podem ser falso-positivos: LES, gravidez, mononucleose, hanseníase. ÚTEIS para monitorar tratamento — o título cai ≥4x (2 diluições) após cura (ex: 1:64 → 1:16 em 3 meses). Testes TREPONÊMICOS (FTA-ABS, TPHA, ELISA): detectam anticorpos específicos. Confirmam o diagnóstico. Permanecem REATIVOS para a vida (não monitoram cura)."
+    },
+    {
+      q:"Qual é o tratamento correto para esta sífilis secundária e o que é a reação de Jarisch-Herxheimer?",
+      opts:["Doxiciclina 100mg 2x/dia × 14 dias (equivalente à penicilina em todos os casos)","Penicilina G benzatina 2,4 milhões UI IM dose única + orientar sobre reação de Jarisch-Herxheimer nas primeiras 24h (febre, calafrios, piora do rash — NÃO é alergia, continuar tratamento)","Azitromicina 1g dose única (1ª escolha por ser oral)","Ceftriaxona 1g IV × 10 dias (reservada para neurossífilis)"],
+      ans:1,
+      fb:"Sífilis primária/secundária/latente precoce: Penicilina G benzatina 2,4 milhões UI IM DOSE ÚNICA (1ª escolha absoluta). Reação de Jarisch-Herxheimer: nas primeiras 2–8h após 1ª dose, febre (38–39°C), calafrios, mialgia, cefaleia, piora transitória das lesões. Causada pela liberação maciça de LPS e citocinas pela destruição de treponemas. NÃO É ALERGIA à penicilina. Conduta: anti-histamínico/antipirético, CONTINUAR o tratamento. Em grávidas: pode precipitar parto prematuro — hospitalizar para monitorização."
+    }
+  ],
+  gabarito:`<strong>Diagnóstico:</strong> Sífilis secundária por Treponema pallidum.<br><br>
+  <strong>Pontos-chave:</strong><ul>
+  <li>Primária: cancro duro INDOLOR → resolve em 3-8 sem. Secundária: rash PALMOPLANTAR</li>
+  <li>VDRL/RPR: triagem + monitorar cura (título cai ≥4x = cura). FTA-ABS: confirma (fica+ para sempre)</li>
+  <li>Tratamento: Penicilina G benzatina SEMPRE (1ª, 2ª, latente precoce: dose única)</li>
+  <li>Jarisch-Herxheimer: febre nas 1ªs 24h = normal, continuar tratamento</li>
+  <li>Diagnóstico direto: microscopia de campo escuro (espiroquetas móveis)</li></ul>`
+},
+
+]; // end CASES
+
+// ═══════════════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════════════
+let currentCase = 0;
+let scores = CASES.map(() => ({answered: [false, false, false], correct: [false, false, false]}));
+let totalCorrect = 0, totalAnswered = 0;
+
+// ═══════════════════════════════════════════════════
+// BUILD INTRO LIST
+// ═══════════════════════════════════════════════════
+function buildIntro(){
+  const el = document.getElementById('caseListPreview');
+  el.innerHTML = CASES.map((c, i) => `
+    <div class="case-preview-item" onclick="goCase(${i})">
+      <div class="case-preview-num">${i+1}</div>
+      <div class="case-preview-info">
+        <div class="case-preview-title">${c.title}</div>
+        <div class="case-preview-sub">Bactéria: <em>${c.bact}</em></div>
+      </div>
+      <span class="case-preview-badge diff-${c.diff}">${c.diffLabel}</span>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER CASE
+// ═══════════════════════════════════════════════════
+function renderCase(idx){
+  const c = CASES[idx];
+  const s = scores[idx];
+  const diffClass = {easy:'diff-easy', med:'diff-med', hard:'diff-hard'}[c.diff];
+  const keys = ['A','B','C','D'];
+
+  let questionsHTML = c.questions.map((q, qi) => {
+    const isAnswered = s.answered[qi];
+    const optsHTML = q.opts.map((opt, oi) => {
+      let cls = 'opt-btn';
+      if(isAnswered){
+        if(oi === q.ans) cls += ' correct';
+        else if(s.chosenIdx && s.chosenIdx[qi] === oi && oi !== q.ans) cls += ' wrong';
+      }
+      return `<button class="opt-btn ${isAnswered && oi===q.ans?'correct':''} ${isAnswered && s.chosenIdx && s.chosenIdx[qi]===oi && oi!==q.ans?'wrong':''}"
+        ${isAnswered?'disabled':''}
+        onclick="answerQ(${idx},${qi},${oi},this)">
+        <span class="opt-key">${keys[oi]}</span><span>${opt}</span>
+      </button>`;
+    }).join('');
+
+    const fbStyle = isAnswered ? 'display:block' : 'display:none';
+    const fbCls = isAnswered ? (s.correct[qi] ? 'correct' : 'wrong') : '';
+    const fbTitle = isAnswered ? (s.correct[qi] ? '✅ Correto!' : '❌ Incorreto') : '';
+
+    return `<div class="q-block" id="qblock-${idx}-${qi}">
+      <div class="q-num">Questão ${qi+1}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="opts">${optsHTML}</div>
+      <div class="feedback ${fbCls}" id="fb-${idx}-${qi}" style="${fbStyle}">
+        <div class="feedback-title">${fbTitle}</div>
+        <div>${isAnswered ? q.fb : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const examGridHTML = c.exams.map(e => `
+    <div class="exam-item"><div class="ek">${e.k}</div><div class="ev">${e.v}</div></div>`).join('');
+
+  const answered = s.answered.every(a=>a);
+  const correctCount = s.correct.filter(Boolean).length;
+
+  document.getElementById('screen-case').innerHTML = `
+    <div class="case-header">
+      <div class="case-num-badge">${idx+1}</div>
+      <div class="case-meta">
+        <h2>${c.title}</h2>
+        <div class="case-meta-sub">Bactéria: <em>${c.bact}</em></div>
+      </div>
+      <span class="diff-badge ${diffClass}">${c.diffLabel}</span>
+    </div>
+    <div class="vignette">
+      <span class="label">📋 Vinheta Clínica</span>
+      ${c.vignette}
+    </div>
+    <div class="exam-box">
+      <span class="label">🔬 Exames Complementares</span>
+      <div class="exam-grid">${examGridHTML}</div>
+    </div>
+    <div class="questions-wrap">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:.5rem;">
+        <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted)">
+          ${answered ? `✅ ${correctCount}/3 questões corretas` : '❓ Responda as questões abaixo'}
+        </div>
+        ${answered ? `<span style="font-size:.8rem;font-weight:700;color:${correctCount===3?'var(--green)':correctCount>=2?'var(--gold)':'var(--red)'}">${correctCount===3?'🏆 Perfeito!':correctCount===2?'🥈 Quase!':'📚 Revisar'}</span>` : ''}
+      </div>
+      ${questionsHTML}
+      <button class="gabarito-btn" onclick="toggleGabarito(${idx})">📖 Ver resolução completa do caso</button>
+      <div class="gabarito-full" id="gabarito-${idx}">
+        <h4>🔑 Resolução Completa</h4>
+        <p>${c.gabarito}</p>
+      </div>
+    </div>
+    <div class="case-nav">
+      <button class="btn-nav" onclick="goCase(${idx-1})" ${idx===0?'disabled':''}>← Caso anterior</button>
+      <div class="case-progress">${idx+1} / ${CASES.length}</div>
+      ${idx < CASES.length-1
+        ? `<button class="btn-nav btn-nav-main" onclick="goCase(${idx+1})">Próximo caso →</button>`
+        : `<button class="btn-nav btn-nav-main" onclick="goScreen('result')">Ver resultado →</button>`}
+    </div>
+  `;
+}
+
+function answerQ(caseIdx, qIdx, chosenIdx, btn){
+  const s = scores[caseIdx];
+  if(s.answered[qIdx]) return;
+  s.answered[qIdx] = true;
+  if(!s.chosenIdx) s.chosenIdx = {};
+  s.chosenIdx[qIdx] = chosenIdx;
+  const correct = chosenIdx === CASES[caseIdx].questions[qIdx].ans;
+  s.correct[qIdx] = correct;
+
+  // update totalAnswered/correct
+  totalAnswered++;
+  if(correct) totalCorrect++;
+  updateScoreDisplay();
+
+  // disable all options
+  const block = document.getElementById(`qblock-${caseIdx}-${qIdx}`);
+  block.querySelectorAll('.opt-btn').forEach((b, oi) => {
+    b.disabled = true;
+    if(oi === CASES[caseIdx].questions[qIdx].ans) b.classList.add('correct');
+    else if(oi === chosenIdx && oi !== CASES[caseIdx].questions[qIdx].ans) b.classList.add('wrong');
+  });
+
+  // show feedback
+  const fb = document.getElementById(`fb-${caseIdx}-${qIdx}`);
+  fb.style.display = 'block';
+  fb.className = `feedback ${correct ? 'correct' : 'wrong'}`;
+  fb.innerHTML = `<div class="feedback-title">${correct ? '✅ Correto!' : '❌ Incorreto'}</div><div>${CASES[caseIdx].questions[qIdx].fb}</div>`;
+  fb.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function toggleGabarito(idx){
+  const el = document.getElementById(`gabarito-${idx}`);
+  el.classList.toggle('open');
+}
+
+function updateScoreDisplay(){
+  document.getElementById('scoreDisplay').textContent = `${totalCorrect} / ${totalAnswered} acertos`;
+}
+
+// ═══════════════════════════════════════════════════
+// RESULT
+// ═══════════════════════════════════════════════════
+function buildResult(){
+  const total = CASES.length * 3;
+  const pct = Math.round((totalCorrect / Math.max(totalAnswered, 1)) * 100);
+  let medal, label;
+  if(pct >= 90){medal='🏆'; label='Excelente! Domínio clínico avançado.';}
+  else if(pct >= 70){medal='🥇'; label='Muito bem! Pronto para a prova.';}
+  else if(pct >= 50){medal='🥈'; label='Bom início. Reforce os casos errados.';}
+  else{medal='📚'; label='Revise o material e tente novamente.';}
+
+  document.getElementById('resMedal').textContent = medal;
+  document.getElementById('resScore').textContent = `${totalCorrect}/${totalAnswered}`;
+  document.getElementById('resLabel').textContent = label;
+  setTimeout(() => document.getElementById('resBar').style.width = pct + '%', 150);
+  document.getElementById('resCorrect').textContent = totalCorrect;
+  document.getElementById('resWrong').textContent = totalAnswered - totalCorrect;
+  document.getElementById('resPct').textContent = pct + '%';
+
+  const rev = document.getElementById('resReview');
+  rev.innerHTML = scores.map((s, i) => {
+    const correct = s.correct.filter(Boolean).length;
+    const answered = s.answered.filter(Boolean).length;
+    if(answered === 0) return '';
+    const ok = correct === answered;
+    return `<div class="review-row ${ok ? 'ok' : 'err'}">
+      <span>${ok ? '✅' : '⚠️'}</span>
+      <div><strong>Caso ${i+1}:</strong> ${CASES[i].bact} — ${correct}/${answered} corretas</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function goScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if(id === 'intro') document.querySelectorAll('.nav-btn')[0].classList.add('active');
+  if(id === 'result'){ buildResult(); document.querySelectorAll('.nav-btn')[12].classList.add('active'); }
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function goCase(idx){
+  if(idx < 0 || idx >= CASES.length) return;
+  currentCase = idx;
+  goScreen('case');
+  renderCase(idx);
+  document.querySelectorAll('.nav-btn')[idx + 1].classList.add('active');
+}
+
+function restart(){
+  scores = CASES.map(() => ({answered: [false, false, false], correct: [false, false, false]}));
+  totalCorrect = 0; totalAnswered = 0;
+  updateScoreDisplay();
+  goScreen('intro');
+}
+
+// INIT
+buildIntro();
+updateScoreDisplay();
+</script>
+</body>
+</html>

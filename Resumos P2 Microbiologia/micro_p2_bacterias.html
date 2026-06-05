@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microbiologia P2 — 11 Bactérias</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap');
+:root{
+  --bg:#fdf6ee;--surface:#fff;--surface2:#fef9f3;
+  --border:#e8ddd0;--border2:#d4c4b0;
+  --red:#c0392b;--red-light:#fdf0ee;--red-mid:#e8c5c0;
+  --green:#1e7a4a;--green-light:#edf7f2;
+  --blue:#1a5c8a;--blue-light:#eaf3fb;
+  --gold:#b8860b;--gold-light:#fdf8e8;
+  --purple:#6b3fa0;--purple-light:#f3eefb;
+  --orange:#c85a00;--orange-light:#fef3ea;
+  --teal:#0d7377;--teal-light:#eafafa;
+  --text:#2c1810;--text-muted:#7a6555;--text-light:#a89080;
+  --shadow:0 2px 16px rgba(44,24,16,.08);
+  --shadow-lg:0 8px 40px rgba(44,24,16,.13);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;}
+
+/* NAV */
+.top-bar{background:var(--red);color:#fff;padding:.7rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(192,57,43,.3);}
+.top-bar-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;}
+.top-bar-sub{font-size:.75rem;opacity:.85;}
+.nav-tabs{display:flex;gap:.3rem;overflow-x:auto;padding:.5rem 1.5rem;background:var(--surface);border-bottom:2px solid var(--border);flex-wrap:wrap;}
+.nav-tab{background:none;border:1px solid var(--border);border-radius:20px;padding:.35rem .9rem;font-size:.78rem;font-weight:600;color:var(--text-muted);cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'Source Sans 3',sans-serif;}
+.nav-tab:hover{border-color:var(--red);color:var(--red);}
+.nav-tab.active{background:var(--red);color:#fff;border-color:var(--red);}
+
+/* MAIN */
+.main{max-width:900px;margin:0 auto;padding:1.5rem;}
+
+/* SECTION */
+.section{display:none;}
+.section.active{display:block;}
+
+/* BACTERIA CARD */
+.bact-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:1.5rem;overflow:hidden;box-shadow:var(--shadow);}
+.bact-header{display:flex;align-items:center;gap:1rem;padding:1.1rem 1.4rem;cursor:pointer;user-select:none;}
+.bact-number{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1rem;flex-shrink:0;color:#fff;}
+.bact-name{flex:1;}
+.bact-name h2{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;line-height:1.2;}
+.bact-name .bact-sub{font-size:.78rem;color:var(--text-muted);margin-top:.1rem;}
+.bact-toggle{color:var(--text-muted);font-size:1.2rem;transition:transform .3s;}
+.bact-card.open .bact-toggle{transform:rotate(180deg);}
+.bact-body{display:none;padding:0 1.4rem 1.4rem;}
+.bact-card.open .bact-body{display:block;}
+
+/* GRID INFO */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.7rem;margin-bottom:1.1rem;}
+.info-chip{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:.6rem .9rem;}
+.info-chip-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:.2rem;}
+.info-chip-val{font-size:.88rem;font-weight:600;color:var(--text);}
+
+/* TAGS */
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem;}
+.tag{font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:12px;}
+.tag-gram-pos{background:#fde8e8;color:#9b2335;}
+.tag-gram-neg{background:#e8f0fe;color:#1a3a8a;}
+.tag-aerob{background:#e8f7ee;color:#1a6b3a;}
+.tag-anaerob{background:#f7f0e8;color:#7a4a1a;}
+.tag-micro{background:#f3eefb;color:#5a2d8a;}
+.tag-facultativo{background:#eaf6fb;color:#0d5c7a;}
+.tag-zoonose{background:#fff3e0;color:#8a4a00;}
+.tag-ist{background:#fce4ec;color:#880e4f;}
+.tag-espiroqueta{background:#e8eaf6;color:#283593;}
+
+/* TABLE */
+.micro-table{width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:1rem;}
+.micro-table th{background:var(--surface2);color:var(--text-muted);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.55rem .8rem;text-align:left;border-bottom:2px solid var(--border);}
+.micro-table td{padding:.55rem .8rem;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.45;}
+.micro-table tr:last-child td{border-bottom:none;}
+.micro-table tr:hover td{background:var(--surface2);}
+
+/* ALERT BOXES */
+.alert{border-radius:9px;padding:.85rem 1rem;margin-bottom:.8rem;font-size:.88rem;line-height:1.55;}
+.alert-title{font-weight:700;margin-bottom:.25rem;font-size:.92rem;}
+.alert-red{background:var(--red-light);border-left:4px solid var(--red);}
+.alert-red .alert-title{color:var(--red);}
+.alert-green{background:var(--green-light);border-left:4px solid var(--green);}
+.alert-green .alert-title{color:var(--green);}
+.alert-gold{background:var(--gold-light);border-left:4px solid var(--gold);}
+.alert-gold .alert-title{color:var(--gold);}
+.alert-blue{background:var(--blue-light);border-left:4px solid var(--blue);}
+.alert-blue .alert-title{color:var(--blue);}
+.alert-purple{background:var(--purple-light);border-left:4px solid var(--purple);}
+.alert-purple .alert-title{color:var(--purple);}
+
+/* SECTION TITLE */
+.sec-label{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:.5rem;margin-top:1rem;}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:1rem 0;}
+
+/* INTRO */
+.intro-hero{background:linear-gradient(135deg,var(--red) 0%,#7b1010 100%);color:#fff;border-radius:14px;padding:2rem;margin-bottom:1.5rem;position:relative;overflow:hidden;}
+.intro-hero::before{content:'🦠';position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);font-size:5rem;opacity:.15;}
+.intro-hero h1{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;margin-bottom:.4rem;}
+.intro-hero p{opacity:.9;font-size:.95rem;line-height:1.5;}
+.intro-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.8rem;margin-bottom:1.5rem;}
+.intro-stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.9rem;text-align:center;}
+.intro-stat-val{font-size:1.6rem;font-weight:900;color:var(--red);display:block;font-family:'Playfair Display',serif;}
+.intro-stat-label{font-size:.72rem;color:var(--text-muted);}
+.quick-nav{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.5rem;}
+.quick-btn{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.65rem 1rem;font-size:.82rem;font-weight:600;color:var(--text);cursor:pointer;text-align:left;transition:all .2s;font-family:'Source Sans 3',sans-serif;display:flex;align-items:center;gap:.5rem;}
+.quick-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-light);}
+.quick-btn .qnum{color:var(--red);font-weight:900;min-width:18px;}
+
+/* COMPARATIVO */
+.comp-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+.comp-table th{background:var(--red);color:#fff;padding:.6rem .8rem;text-align:left;font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;}
+.comp-table th:first-child{border-radius:8px 0 0 0;}
+.comp-table th:last-child{border-radius:0 8px 0 0;}
+.comp-table td{padding:.6rem .8rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.comp-table tr:nth-child(even) td{background:var(--surface2);}
+.comp-table tr:hover td{background:var(--red-light);}
+.comp-table .bact-nm{font-weight:700;color:var(--red);}
+
+/* MNEMÔNICOS */
+.mnemo-card{background:var(--gold-light);border:1px solid #e8d080;border-radius:10px;padding:1rem 1.2rem;margin-bottom:.8rem;}
+.mnemo-card h4{color:var(--gold);font-size:.85rem;font-weight:700;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.08em;}
+.mnemo-card p{font-size:.92rem;line-height:1.5;color:var(--text);}
+.mnemo-card .phrase{font-size:1.1rem;font-weight:700;color:var(--gold);margin:.3rem 0;}
+
+/* PONTOS QUENTES */
+.hot-list{display:flex;flex-direction:column;gap:.6rem;}
+.hot-item{display:flex;gap:.7rem;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.7rem .9rem;font-size:.88rem;line-height:1.45;}
+.hot-item .fire{flex-shrink:0;font-size:1.1rem;}
+
+/* COLORS PER BACT */
+.c1{background:#c0392b;} .c2{background:#2980b9;} .c3{background:#16a085;}
+.c4{background:#8e44ad;} .c5{background:#d35400;} .c6{background:#27ae60;}
+.c7{background:#c0392b;} .c8{background:#2c3e50;} .c9{background:#7d3c98;}
+.c10{background:#117a65;} .c11{background:#1a5276;}
+
+.scroll-top{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--red);color:#fff;border:none;width:42px;height:42px;border-radius:50%;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 16px rgba(192,57,43,.4);display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:50;}
+.scroll-top:hover{transform:translateY(-3px);}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div>
+    <div class="top-bar-title">🦠 Microbiologia — P2</div>
+    <div class="top-bar-sub">29/05 · 11 Bactérias · Guyton + Aula</div>
+  </div>
+  <div style="font-size:.8rem;opacity:.85">Cristiano R. Silva</div>
+</div>
+
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="showSection('inicio')">🏠 Início</button>
+  <button class="nav-tab" onclick="showSection('bacterias')">🔬 Bactérias</button>
+  <button class="nav-tab" onclick="showSection('comparativo')">📊 Comparativo</button>
+  <button class="nav-tab" onclick="showSection('mnemonicos')">🧠 Mnemônicos</button>
+  <button class="nav-tab" onclick="showSection('pontos')">🔥 Pontos Quentes</button>
+</div>
+
+<div class="main">
+
+<!-- ══ INÍCIO ══ -->
+<div id="sec-inicio" class="section active">
+  <div class="intro-hero">
+    <h1>P2 · Microbiologia</h1>
+    <p>Material de revisão completo para as 11 bactérias.<br>Clica em cada aba para navegar ou usa o acesso rápido abaixo.</p>
+  </div>
+  <div class="intro-grid">
+    <div class="intro-stat"><span class="intro-stat-val">11</span><span class="intro-stat-label">Bactérias</span></div>
+    <div class="intro-stat"><span class="intro-stat-val">6</span><span class="intro-stat-label">Gram-negativas</span></div>
+    <div class="intro-stat"><span class="intro-stat-val">3</span><span class="intro-stat-label">Zoonoses</span></div>
+    <div class="intro-stat"><span class="intro-stat-val">2</span><span class="intro-stat-label">ISTs</span></div>
+  </div>
+  <div class="sec-label">Acesso rápido às bactérias</div>
+  <div class="quick-nav">
+    <button class="quick-btn" onclick="showSection('bacterias');openCard(0)"><span class="qnum">1</span> E. coli</button>
+    <button class="quick-btn" onclick="showSection('bacterias');openCard(1)"><span class="qnum">2</span> Proteus</button>
+    <button class="quick-btn" onclick="showSection('bacterias');openCard(2)"><span class="qnum">3</span> Vibrio</button>
+    <button class="quick-btn" onclick="showSection('bacterias');openCard(3)"><span class="qnum">4</span> Campylobacter</button>
+    <button class="quick-btn" onclick="showSection('bacterias');openCard(4)"><span class="qnum">5</span> H. pylori</button>
+    <button class="quick-btn" onclick="showSection('bacterias');openCard(5)"><span class="qnum">6</span> Neisseria</button>
+    <button class="quick-btn" onclick="showSection('bacterias');openCard(6)"><span class="qnum">7</span> Bartonella</button>
+    <button class="quick-btn" onclick="showSection('bacterias');openCard(7)"><span class="qnum">8</span> Brucella</button>
+    <button class="quick-btn" onclick="showSection('bacterias');openCard(8)"><span class="qnum">9</span> Pasteurella</button>
+    <button class="quick-btn" onclick="showSection('bacterias');openCard(9)"><span class="qnum">10</span> Gardnerella</button>
+    <button class="quick-btn" onclick="showSection('bacterias');openCard(10)"><span class="qnum">11</span> T. pallidum</button>
+  </div>
+</div>
+
+<!-- ══ BACTÉRIAS ══ -->
+<div id="sec-bacterias" class="section">
+
+<!-- 1. E. COLI -->
+<div class="bact-card" id="card-0">
+  <div class="bact-header" onclick="toggleCard(0)">
+    <div class="bact-number c1">1</div>
+    <div class="bact-name"><h2>Escherichia coli</h2><div class="bact-sub">Família Enterobacteriaceae</div></div>
+    <span class="bact-toggle">▼</span>
+  </div>
+  <div class="bact-body">
+    <div class="tags">
+      <span class="tag tag-gram-neg">Gram-negativa</span>
+      <span class="tag tag-facultativo">Anaeróbio facultativo</span>
+      <span class="tag" style="background:#fdf0ee;color:#7a1010">Bastonete (bacilo)</span>
+    </div>
+    <div class="info-grid">
+      <div class="info-chip"><div class="info-chip-label">Morfologia</div><div class="info-chip-val">Bacilo Gram (-)</div></div>
+      <div class="info-chip"><div class="info-chip-label">Habitat</div><div class="info-chip-val">Flora intestinal normal</div></div>
+      <div class="info-chip"><div class="info-chip-label">Motilidade</div><div class="info-chip-val">Flagelos peritríquios</div></div>
+      <div class="info-chip"><div class="info-chip-label">Fermentação</div><div class="info-chip-val">Fermenta lactose ✅</div></div>
+    </div>
+    <div class="sec-label">Patotipos — Ponto clássico de prova</div>
+    <table class="micro-table">
+      <tr><th>Patotipo</th><th>Sigla</th><th>Mecanismo</th><th>Clínica</th></tr>
+      <tr><td><b>Enteropatogênica</b></td><td>EPEC</td><td>Aderência, lesão A/E</td><td>Diarreia infantil aquosa</td></tr>
+      <tr><td><b>Enterotoxigênica</b></td><td>ETEC</td><td>Toxinas LT e ST</td><td>Diarreia do viajante</td></tr>
+      <tr><td><b>Enterohemorrágica</b></td><td>EHEC (O157:H7)</td><td>Toxina Shiga (Stx)</td><td>Diarreia sanguinolenta → SHU</td></tr>
+      <tr><td><b>Enteroinvasiva</b></td><td>EIEC</td><td>Invasão da mucosa</td><td>Disenteria (febre + sangue)</td></tr>
+      <tr><td><b>Enteroagregativa</b></td><td>EAEC</td><td>Aderência em camada</td><td>Diarreia persistente</td></tr>
+    </table>
+    <div class="alert alert-red">
+      <div class="alert-title">⚠️ O157:H7 — Ponto obrigatório de prova</div>
+      Produz toxina Shiga → colite hemorrágica → pode evoluir para <strong>Síndrome Hemolítico-Urêmica (SHU)</strong>: anemia hemolítica + trombocitopenia + insuficiência renal aguda. NÃO usar antibióticos (piora a liberação de toxina).
+    </div>
+    <div class="sec-label">Outras Infecções</div>
+    <table class="micro-table">
+      <tr><th>Infecção</th><th>Detalhe</th></tr>
+      <tr><td>ITU (a mais comum)</td><td>Principal causa de ITU comunitária. Antígeno K e fímbrias P facilitam aderência ao uroepitélio</td></tr>
+      <tr><td>Meningite neonatal</td><td>Antígeno K1 — atravessa BHE</td></tr>
+      <tr><td>Sepse</td><td>Lipopolissacarídeo (LPS) → choque endotóxico</td></tr>
+      <tr><td>Peritonite</td><td>Secundária a perfuração intestinal</td></tr>
+    </table>
+    <div class="alert alert-green">
+      <div class="alert-title">✅ Diagnóstico</div>
+      Cultura em Ágar MacConkey: colônias <strong>rosas</strong> (fermenta lactose). EMB: colônias com <strong>brilho metálico verde</strong>. EHEC: colônias incolores no MacConkey (não fermenta sorbitol).
+    </div>
+    <div class="alert alert-gold">
+      <div class="alert-title">💊 Tratamento</div>
+      ITU: Fosfomicina, Nitrofurantoína, TMP-SMX. Infecções graves: Cefalosporinas 3ª geração, Carbapenemos. EHEC: SEM antibiótico.
+    </div>
+  </div>
+</div>
+
+<!-- 2. PROTEUS -->
+<div class="bact-card" id="card-1">
+  <div class="bact-header" onclick="toggleCard(1)">
+    <div class="bact-number c2">2</div>
+    <div class="bact-name"><h2>Proteus mirabilis</h2><div class="bact-sub">Família Enterobacteriaceae</div></div>
+    <span class="bact-toggle">▼</span>
+  </div>
+  <div class="bact-body">
+    <div class="tags">
+      <span class="tag tag-gram-neg">Gram-negativa</span>
+      <span class="tag tag-facultativo">Anaeróbio facultativo</span>
+      <span class="tag" style="background:#fdf0ee;color:#7a1010">Bacilo</span>
+    </div>
+    <div class="info-grid">
+      <div class="info-chip"><div class="info-chip-label">Característica marcante</div><div class="info-chip-val">Urease fortemente positiva 🔑</div></div>
+      <div class="info-chip"><div class="info-chip-label">Lactose</div><div class="info-chip-val">NÃO fermenta ❌</div></div>
+      <div class="info-chip"><div class="info-chip-label">Odor</div><div class="info-chip-val">Fétido característico</div></div>
+      <div class="info-chip"><div class="info-chip-label">Motilidade</div><div class="info-chip-val">Muito móvel (swarming)</div></div>
+    </div>
+    <div class="alert alert-red">
+      <div class="alert-title">🔑 Ponto-chave: Urease + Cálculos</div>
+      Urease degrada ureia → NH₃ → <strong>alcaliniza a urina</strong> → precipitação de estruvita → <strong>cálculos coraliformes</strong> (estruvita). Cálculo de estruvita em ITU de repetição = pensar em Proteus.
+    </div>
+    <div class="sec-label">Infecções Principais</div>
+    <table class="micro-table">
+      <tr><th>Infecção</th><th>Detalhe clínico</th></tr>
+      <tr><td><b>ITU (principal)</b></td><td>2ª causa mais comum de ITU hospitalar. Associada a cateterismo e cálculos</td></tr>
+      <tr><td>Sepse</td><td>Em imunossuprimidos e UTI</td></tr>
+      <tr><td>Infecção de ferida</td><td>Pós-cirúrgico e queimados</td></tr>
+      <tr><td>Pneumonia hospitalar</td><td>Menos frequente</td></tr>
+    </table>
+    <div class="alert alert-gold">
+      <div class="alert-title">💊 Tratamento</div>
+      Ampicilina (P. mirabilis é sensível). Cefalosporinas. Ciprofloxacino. P. vulgaris: mais resistente — Carbapenemos.
+    </div>
+    <div class="alert alert-blue">
+      <div class="alert-title">🔬 Diagnóstico Diferencial no MacConkey</div>
+      Colônias incolores (não fermenta lactose) + odor fétido + swarming em Ágar sangue (migração em ondas concêntricas). H₂S positivo (enegrecimento em TSI).
+    </div>
+  </div>
+</div>
+
+<!-- 3. VIBRIO -->
+<div class="bact-card" id="card-2">
+  <div class="bact-header" onclick="toggleCard(2)">
+    <div class="bact-number c3">3</div>
+    <div class="bact-name"><h2>Vibrio cholerae</h2><div class="bact-sub">Família Vibrionaceae</div></div>
+    <span class="bact-toggle">▼</span>
+  </div>
+  <div class="bact-body">
+    <div class="tags">
+      <span class="tag tag-gram-neg">Gram-negativa</span>
+      <span class="tag tag-aerob">Aeróbio facultativo</span>
+      <span class="tag" style="background:#eafafa;color:#0d5c5c">Bacilo curvo (vírgula)</span>
+    </div>
+    <div class="info-grid">
+      <div class="info-chip"><div class="info-chip-label">Morfologia</div><div class="info-chip-val">Bacilo curvo em vírgula 🍌</div></div>
+      <div class="info-chip"><div class="info-chip-label">Flagelo</div><div class="info-chip-val">Monotríquio polar</div></div>
+      <div class="info-chip"><div class="info-chip-label">Crescimento</div><div class="info-chip-val">Meio alcalino (TCBS)</div></div>
+      <div class="info-chip"><div class="info-chip-label">Transmissão</div><div class="info-chip-val">Água/alimentos contaminados</div></div>
+    </div>
+    <div class="alert alert-red">
+      <div class="alert-title">🔑 Toxina Colérica (CT) — O mecanismo mais cobrado</div>
+      Subunidade B: liga-se a GM1 do enterócito. Subunidade A: ativa adenilato ciclase → ↑↑ AMPc → abertura de canal Cl⁻ → saída massiva de água e eletrólitos → <strong>diarreia em água de arroz</strong> (sem sangue, sem febre). Perda de até 20L/dia → desidratação grave → choque hipovolêmico.
+    </div>
+    <div class="sec-label">Clínica</div>
+    <table class="micro-table">
+      <tr><th>Característica</th><th>Detalhe</th></tr>
+      <tr><td>Diarreia</td><td>Profusa, aquosa, "água de arroz", sem sangue, sem muco</td></tr>
+      <tr><td>Vômitos</td><td>Intensos no início</td></tr>
+      <tr><td>Febre</td><td>Geralmente ausente</td></tr>
+      <tr><td>Cólicas</td><td>Moderadas</td></tr>
+      <tr><td>Desidratação</td><td>Rápida e grave — pele em "pergaminho", olhos encovados</td></tr>
+    </table>
+    <div class="alert alert-green">
+      <div class="alert-title">✅ Tratamento</div>
+      <strong>Prioridade absoluta: reidratação oral ou IV</strong> (SRO — WHO). Antibiótico: Doxiciclina (adulto), Azitromicina (criança/grávida). Reduz duração mas reidratação é o pilar.
+    </div>
+    <div class="alert alert-blue">
+      <div class="alert-title">🔬 Outros Vibrios</div>
+      V. parahaemolyticus: frutos do mar crus → gastroenterite + diarreia sanguinolenta. V. vulnificus: ferimentos em água do mar + sepse grave em cirróticos.
+    </div>
+  </div>
+</div>
+
+<!-- 4. CAMPYLOBACTER -->
+<div class="bact-card" id="card-3">
+  <div class="bact-header" onclick="toggleCard(3)">
+    <div class="bact-number c4">4</div>
+    <div class="bact-name"><h2>Campylobacter jejuni</h2><div class="bact-sub">Família Campylobacteraceae</div></div>
+    <span class="bact-toggle">▼</span>
+  </div>
+  <div class="bact-body">
+    <div class="tags">
+      <span class="tag tag-gram-neg">Gram-negativa</span>
+      <span class="tag tag-micro">Microaerófilo</span>
+      <span class="tag" style="background:#eafafa;color:#0d5c5c">Bacilo curvo/espiral</span>
+      <span class="tag tag-zoonose">Zoonose</span>
+    </div>
+    <div class="info-grid">
+      <div class="info-chip"><div class="info-chip-label">Forma</div><div class="info-chip-val">Espiral ("asa de gaivota") 🐦</div></div>
+      <div class="info-chip"><div class="info-chip-label">O₂</div><div class="info-chip-val">Microaerófilo (5–10% O₂)</div></div>
+      <div class="info-chip"><div class="info-chip-label">Temperatura ótima</div><div class="info-chip-val">42°C (termofílico)</div></div>
+      <div class="info-chip"><div class="info-chip-label">Fonte principal</div><div class="info-chip-val">Frango mal cozido 🍗</div></div>
+    </div>
+    <div class="alert alert-red">
+      <div class="alert-title">⚠️ Complicações Pós-infecciosas — Ponto crítico</div>
+      <strong>Síndrome de Guillain-Barré (SGB)</strong>: desmielinização do SNP por mimetismo molecular (LOS do Campylobacter × gangliosídeos neuronais). Paralisia ascendente flácida semanas após gastroenterite. É a causa infecciosa mais comum de SGB no mundo.
+    </div>
+    <div class="sec-label">Clínica</div>
+    <table class="micro-table">
+      <tr><th>Fase</th><th>Manifestação</th></tr>
+      <tr><td>Pródromo (1–3 dias)</td><td>Febre, cefaleia, mialgia</td></tr>
+      <tr><td>Fase aguda</td><td>Diarreia aquosa → sanguinolenta, cólicas intensas, febre alta</td></tr>
+      <tr><td>Duração</td><td>5–7 dias (autolimitada)</td></tr>
+      <tr><td>Pós-infecciosa</td><td>SGB, artrite reativa (Sínd. de Reiter)</td></tr>
+    </table>
+    <div class="alert alert-gold">
+      <div class="alert-title">💊 Tratamento</div>
+      Geralmente autolimitado — hidratação. Casos graves: Azitromicina (1ª linha) ou Eritromicina. Fluoroquinolonas (resistência crescente). SGB: IVIG ou plasmaférese.
+    </div>
+  </div>
+</div>
+
+<!-- 5. H. PYLORI -->
+<div class="bact-card" id="card-4">
+  <div class="bact-header" onclick="toggleCard(4)">
+    <div class="bact-number c5">5</div>
+    <div class="bact-name"><h2>Helicobacter pylori</h2><div class="bact-sub">Família Helicobacteraceae</div></div>
+    <span class="bact-toggle">▼</span>
+  </div>
+  <div class="bact-body">
+    <div class="tags">
+      <span class="tag tag-gram-neg">Gram-negativa</span>
+      <span class="tag tag-micro">Microaerófilo</span>
+      <span class="tag" style="background:#fdf0ee;color:#7a1010">Espiral</span>
+    </div>
+    <div class="info-grid">
+      <div class="info-chip"><div class="info-chip-label">Habitat</div><div class="info-chip-val">Mucosa gástrica</div></div>
+      <div class="info-chip"><div class="info-chip-label">Enzima-chave</div><div class="info-chip-val">Urease (++++) 🔑</div></div>
+      <div class="info-chip"><div class="info-chip-label">Transmissão</div><div class="info-chip-val">Fecal-oral / oral-oral</div></div>
+      <div class="info-chip"><div class="info-chip-label">Prevalência</div><div class="info-chip-val">>50% da população mundial</div></div>
+    </div>
+    <div class="alert alert-red">
+      <div class="alert-title">🔑 Mecanismo de sobrevivência no estômago</div>
+      Urease → ureia → NH₃ + CO₂ → neutraliza o ácido ao redor da bactéria → sobrevive no pH ácido. Base do <strong>teste respiratório com ureia-¹³C</strong> (gold standard não invasivo de diagnóstico).
+    </div>
+    <div class="sec-label">Doenças Associadas</div>
+    <table class="micro-table">
+      <tr><th>Doença</th><th>Associação</th></tr>
+      <tr><td>Gastrite crônica ativa</td><td>100% dos infectados têm gastrite histológica</td></tr>
+      <tr><td>Úlcera péptica duodenal</td><td>90–95% associados a H. pylori</td></tr>
+      <tr><td>Úlcera gástrica</td><td>70–85% associados</td></tr>
+      <tr><td><b>Adenocarcinoma gástrico</b></td><td>Carcinógeno grupo 1 (OMS) 🚨</td></tr>
+      <tr><td>Linfoma MALT</td><td>Regressão com erradicação do H. pylori</td></tr>
+    </table>
+    <div class="alert alert-green">
+      <div class="alert-title">✅ Diagnóstico</div>
+      Não invasivo: Teste respiratório com ¹³C-ureia (gold standard), Antígeno fecal, Sorologia. Invasivo (endoscopia): Biópsia + Urease rápida, Histologia, Cultura.
+    </div>
+    <div class="alert alert-gold">
+      <div class="alert-title">💊 Terapia de Erradicação — Tripla terapia</div>
+      <strong>IBP + Claritromicina + Amoxicilina × 14 dias</strong> (1ª linha). Alergia a penicilina: IBP + Claritromicina + Metronidazol. Resistência à claritromicina: quadrupla terapia com Bismuto.
+    </div>
+  </div>
+</div>
+
+<!-- 6. NEISSERIA -->
+<div class="bact-card" id="card-5">
+  <div class="bact-header" onclick="toggleCard(5)">
+    <div class="bact-number c6">6</div>
+    <div class="bact-name"><h2>Neisseria</h2><div class="bact-sub">N. gonorrhoeae · N. meningitidis</div></div>
+    <span class="bact-toggle">▼</span>
+  </div>
+  <div class="bact-body">
+    <div class="tags">
+      <span class="tag tag-gram-neg">Gram-negativa</span>
+      <span class="tag tag-aerob">Aeróbio estrito</span>
+      <span class="tag" style="background:#e8f0fe;color:#1a3a8a">Diplococos</span>
+    </div>
+    <div class="alert alert-blue">
+      <div class="alert-title">🔑 Característica morfológica clássica</div>
+      Diplococos Gram-negativos em forma de grão de café / rim, intracelulares (dentro de neutrófilos no esfregaço). Oxidase positiva.
+    </div>
+    <div class="sec-label">Comparação — N. gonorrhoeae vs N. meningitidis</div>
+    <table class="micro-table">
+      <tr><th>Característica</th><th>N. gonorrhoeae</th><th>N. meningitidis</th></tr>
+      <tr><td>Doença principal</td><td>Gonorreia (IST)</td><td>Meningite meningocócica</td></tr>
+      <tr><td>Transmissão</td><td>Sexual / perinatal</td><td>Gotículas respiratórias</td></tr>
+      <tr><td>Cápsula</td><td>Não (sem cápsula)</td><td>Sim (sorogrupos A,B,C,W,Y)</td></tr>
+      <tr><td>Maltose</td><td>NÃO fermenta</td><td>Fermenta ✅</td></tr>
+      <tr><td>Glicose</td><td>Fermenta ✅</td><td>Fermenta ✅</td></tr>
+      <tr><td>Vacina</td><td>Não disponível</td><td>Disponível (meningocócica)</td></tr>
+      <tr><td>Tratamento</td><td>Ceftriaxona + Azitromicina</td><td>Penicilina G ou Ceftriaxona</td></tr>
+    </table>
+    <div class="alert alert-red">
+      <div class="alert-title">⚠️ Gonorreia — Manifestações</div>
+      Homem: uretrite purulenta (secreção amarelada). Mulher: cervicite (80% assintomática!) → DIP → infertilidade. Neonato: oftalmia neonatal (conjuntivite purulenta → cegueira). Complicação: gonorreia disseminada (artrite + rash pustular + sepse).
+    </div>
+    <div class="alert alert-purple">
+      <div class="alert-title">⚠️ Meningite Meningocócica</div>
+      Tríade: febre + rigidez de nuca + fotofobia. Rash petequial/purpúrico = sinal de alerta (púrpura fulminante — Síndrome de Waterhouse-Friderichsen). EMERGÊNCIA MÉDICA. Quimioprofilaxia de contactos: Rifampicina ou Ciprofloxacino.
+    </div>
+  </div>
+</div>
+
+<!-- 7. BARTONELLA -->
+<div class="bact-card" id="card-6">
+  <div class="bact-header" onclick="toggleCard(6)">
+    <div class="bact-number c7">7</div>
+    <div class="bact-name"><h2>Bartonella</h2><div class="bact-sub">B. henselae · B. quintana · B. bacilliformis</div></div>
+    <span class="bact-toggle">▼</span>
+  </div>
+  <div class="bact-body">
+    <div class="tags">
+      <span class="tag tag-gram-neg">Gram-negativa</span>
+      <span class="tag" style="background:#fde8f0;color:#8a0d3a">Intracelular facultativo</span>
+      <span class="tag tag-zoonose">Zoonose</span>
+    </div>
+    <div class="sec-label">Espécies e Doenças</div>
+    <table class="micro-table">
+      <tr><th>Espécie</th><th>Vetor</th><th>Doença</th><th>Hospedeiro</th></tr>
+      <tr><td><b>B. henselae</b></td><td>Arranhão/mordida de gato (pulga)</td><td>Doença da Arranhadura do Gato (DAG)</td><td>Gatos jovens</td></tr>
+      <tr><td><b>B. quintana</b></td><td>Piolho do corpo</td><td>Febre das trincheiras, Angiomatose bacilar</td><td>Humanos (sem reservatório animal)</td></tr>
+      <tr><td><b>B. bacilliformis</b></td><td>Flebótomo (Lutzomyia)</td><td>Doença de Carrión (Febre de Oroya + Verruga peruana)</td><td>Andes (Peru, Equador)</td></tr>
+    </table>
+    <div class="alert alert-red">
+      <div class="alert-title">🔑 Doença da Arranhadura do Gato (B. henselae)</div>
+      Arranhão de gato jovem → pápula local → <strong>linfadenopatia regional dolorosa</strong> (axila/pescoço) → resolução espontânea em semanas. Imunocomprometidos (HIV): <strong>Angiomatose bacilar</strong> (lesões vasculares na pele) ou Peliose hepática.
+    </div>
+    <div class="alert alert-gold">
+      <div class="alert-title">💊 Tratamento</div>
+      DAG imunocompetente: autolimitada (observação). Casos graves / imunossuprimidos: Azitromicina ou Doxiciclina. Angiomatose bacilar: Eritromicina ou Doxiciclina por semanas.
+    </div>
+  </div>
+</div>
+
+<!-- 8. BRUCELLA -->
+<div class="bact-card" id="card-7">
+  <div class="bact-header" onclick="toggleCard(7)">
+    <div class="bact-number c8">8</div>
+    <div class="bact-name"><h2>Brucella</h2><div class="bact-sub">B. melitensis · B. abortus · B. suis · B. canis</div></div>
+    <span class="bact-toggle">▼</span>
+  </div>
+  <div class="bact-body">
+    <div class="tags">
+      <span class="tag tag-gram-neg">Gram-negativa</span>
+      <span class="tag tag-aerob">Aeróbio</span>
+      <span class="tag" style="background:#fde8f0;color:#8a0d3a">Intracelular facultativo</span>
+      <span class="tag tag-zoonose">Zoonose</span>
+    </div>
+    <div class="info-grid">
+      <div class="info-chip"><div class="info-chip-label">Forma</div><div class="info-chip-val">Cocobacilo</div></div>
+      <div class="info-chip"><div class="info-chip-label">Reservatório</div><div class="info-chip-val">Gado, cabras, suínos, cães</div></div>
+      <div class="info-chip"><div class="info-chip-label">Transmissão humana</div><div class="info-chip-val">Leite não pasteurizado, contato c/ placenta/aborto animal, inalação</div></div>
+      <div class="info-chip"><div class="info-chip-label">Febre</div><div class="info-chip-val">Ondulante (febre de Malta)</div></div>
+    </div>
+    <div class="alert alert-red">
+      <div class="alert-title">🔑 Febre Ondulante — Característica patognomônica</div>
+      Febre que sobe e desce em ondas (ondulante), vespertina, associada a sudorese profusa noturna com odor de palha molhada. Hepatoesplenomegalia, artralgia, lombalgia. Pode se tornar crônica (meses a anos) se não tratada.
+    </div>
+    <div class="sec-label">Espécies e Reservatórios</div>
+    <table class="micro-table">
+      <tr><th>Espécie</th><th>Reservatório principal</th><th>Virulência</th></tr>
+      <tr><td>B. melitensis</td><td>Cabras e ovelhas</td><td>Mais virulenta para humanos 🔴</td></tr>
+      <tr><td>B. abortus</td><td>Bovinos</td><td>Moderada</td></tr>
+      <tr><td>B. suis</td><td>Suínos</td><td>Moderada/alta</td></tr>
+      <tr><td>B. canis</td><td>Cães</td><td>Baixa</td></tr>
+    </table>
+    <div class="alert alert-gold">
+      <div class="alert-title">💊 Tratamento — Combinação obrigatória</div>
+      <strong>Doxiciclina 6 semanas + Rifampicina 6 semanas</strong> (1ª linha). Ou Doxiciclina + Estreptomicina. Monoterapia = alta taxa de recidiva. Grávidas: TMP-SMX + Rifampicina.
+    </div>
+  </div>
+</div>
+
+<!-- 9. PASTEURELLA -->
+<div class="bact-card" id="card-8">
+  <div class="bact-header" onclick="toggleCard(8)">
+    <div class="bact-number c9">9</div>
+    <div class="bact-name"><h2>Pasteurella multocida</h2><div class="bact-sub">Família Pasteurellaceae</div></div>
+    <span class="bact-toggle">▼</span>
+  </div>
+  <div class="bact-body">
+    <div class="tags">
+      <span class="tag tag-gram-neg">Gram-negativa</span>
+      <span class="tag tag-facultativo">Anaeróbio facultativo</span>
+      <span class="tag" style="background:#fff3e0;color:#8a4a00">Cocobacilo</span>
+      <span class="tag tag-zoonose">Zoonose</span>
+    </div>
+    <div class="info-grid">
+      <div class="info-chip"><div class="info-chip-label">Transmissão</div><div class="info-chip-val">Mordida/arranhão de gato e cão 🐱🐶</div></div>
+      <div class="info-chip"><div class="info-chip-label">Início</div><div class="info-chip-val">Rápido — < 24h</div></div>
+      <div class="info-chip"><div class="info-chip-label">Oxidase</div><div class="info-chip-val">Positiva</div></div>
+      <div class="info-chip"><div class="info-chip-label">Catalase</div><div class="info-chip-val">Positiva</div></div>
+    </div>
+    <div class="alert alert-red">
+      <div class="alert-title">🔑 Ponto clínico clássico — Mordida de gato</div>
+      Gatos têm dentes longos e finos → inoculam a bactéria profundamente (tendões, ossos). <strong>Celulite rapidamente progressiva</strong> em < 24h após mordida. Risco de osteomielite, tenossinovite e sepse em imunossuprimidos/asplênicos.
+    </div>
+    <div class="sec-label">Manifestações Clínicas</div>
+    <table class="micro-table">
+      <tr><th>Infecção</th><th>Detalhe</th></tr>
+      <tr><td>Celulite de mordida</td><td>Local doloroso, eritematoso, edemaciado. Início < 24h</td></tr>
+      <tr><td>Osteomielite</td><td>Mordida profunda em mãos (comum)</td></tr>
+      <tr><td>Sepse</td><td>Em cirróticos, asplênicos, imunossuprimidos</td></tr>
+      <tr><td>Pneumonia</td><td>Em DPOC e bronquiectasias (colonização)</td></tr>
+    </table>
+    <div class="alert alert-gold">
+      <div class="alert-title">💊 Tratamento</div>
+      <strong>Amoxicilina-Clavulanato</strong> (1ª linha para mordeduras). Alternativas: Doxiciclina, TMP-SMX. Penicilina G (IV em casos graves). Importante: limpeza local imediata da ferida.
+    </div>
+    <div class="alert alert-blue">
+      <div class="alert-title">⚠️ Diferencial com Capnocytophaga canimorsus</div>
+      Também por mordida de cão → sepse fulminante em asplênicos. Ambas respondem a Amoxicilina-Clavulanato.
+    </div>
+  </div>
+</div>
+
+<!-- 10. GARDNERELLA -->
+<div class="bact-card" id="card-9">
+  <div class="bact-header" onclick="toggleCard(9)">
+    <div class="bact-number c10">10</div>
+    <div class="bact-name"><h2>Gardnerella vaginalis</h2><div class="bact-sub">Família Bifidobacteriaceae</div></div>
+    <span class="bact-toggle">▼</span>
+  </div>
+  <div class="bact-body">
+    <div class="tags">
+      <span class="tag" style="background:#e8f7ee;color:#1a4a2a">Gram-variável</span>
+      <span class="tag tag-facultativo">Anaeróbio facultativo</span>
+      <span class="tag tag-ist">IST / Vaginose bacteriana</span>
+    </div>
+    <div class="info-grid">
+      <div class="info-chip"><div class="info-chip-label">Gram</div><div class="info-chip-val">Variável (pequeno cocobacilo)</div></div>
+      <div class="info-chip"><div class="info-chip-label">Habitat</div><div class="info-chip-val">Vagina (flora normal em baixa quantidade)</div></div>
+      <div class="info-chip"><div class="info-chip-label">pH vaginal</div><div class="info-chip-val">> 4,5 (alcalino) na vaginose</div></div>
+      <div class="info-chip"><div class="info-chip-label">Odor</div><div class="info-chip-val">"Peixe podre" (aminas voláteis)</div></div>
+    </div>
+    <div class="alert alert-red">
+      <div class="alert-title">🔑 Vaginose Bacteriana — Critérios de Amsel</div>
+      Diagnóstico com 3 de 4 critérios:<br>
+      1. Corrimento branco-acinzentado homogêneo aderente<br>
+      2. pH vaginal > 4,5<br>
+      3. Teste das aminas positivo (odor de peixe com KOH 10%)<br>
+      4. <strong>Clue cells</strong> ao microscópio (células epiteliais cobertas por bactérias — patognomônico!)
+    </div>
+    <div class="alert alert-blue">
+      <div class="alert-title">🔬 Clue Cells — Mais importante</div>
+      Células epiteliais vaginais completamente recobertas por G. vaginalis, tornando os bordos irregulares e "estipulados". Visíveis no exame a fresco. Presença de clue cells (>20%) = diagnóstico de vaginose bacteriana.
+    </div>
+    <div class="alert alert-gold">
+      <div class="alert-title">💊 Tratamento</div>
+      <strong>Metronidazol</strong> 500mg VO 2x/dia × 7 dias (ou gel vaginal × 5 dias). Alternativa: Clindamicina. Grávidas: Metronidazol VO ou Clindamicina vaginal (trata para reduzir risco de parto prematuro).
+    </div>
+    <div class="alert alert-purple">
+      <div class="alert-title">⚠️ Diferencial com Candidíase e Tricomoníase</div>
+      Candidíase: corrimento branco grumoso (queijo cottage), pH normal (<4,5), prurito intenso, sem odor. Tricomoníase: corrimento amarelo-esverdeado espumoso, pH>4,5, colpite em morango, protozoário flagelado.
+    </div>
+  </div>
+</div>
+
+<!-- 11. TREPONEMA PALLIDUM -->
+<div class="bact-card" id="card-10">
+  <div class="bact-header" onclick="toggleCard(10)">
+    <div class="bact-number c11">11</div>
+    <div class="bact-name"><h2>Treponema pallidum</h2><div class="bact-sub">Família Treponemataceae — Espiroqueta</div></div>
+    <span class="bact-toggle">▼</span>
+  </div>
+  <div class="bact-body">
+    <div class="tags">
+      <span class="tag tag-espiroqueta">Espiroqueta</span>
+      <span class="tag tag-ist">IST (Sífilis)</span>
+      <span class="tag" style="background:#e8eaf6;color:#1a237e">Não cresce em cultura</span>
+      <span class="tag tag-aerob">Microaerófilo</span>
+    </div>
+    <div class="info-grid">
+      <div class="info-chip"><div class="info-chip-label">Visualização</div><div class="info-chip-val">Microscopia de campo escuro 🔑</div></div>
+      <div class="info-chip"><div class="info-chip-label">Gram</div><div class="info-chip-val">Não cora pelo Gram (muito fina)</div></div>
+      <div class="info-chip"><div class="info-chip-label">Transmissão</div><div class="info-chip-val">Sexual / vertical (congênita)</div></div>
+      <div class="info-chip"><div class="info-chip-label">Reservatório</div><div class="info-chip-val">Exclusivamente humano</div></div>
+    </div>
+    <div class="sec-label">Estágios da Sífilis — Ponto central de prova</div>
+    <table class="micro-table">
+      <tr><th>Estágio</th><th>Tempo</th><th>Lesão característica</th><th>Transmissibilidade</th></tr>
+      <tr><td><b>Primária</b></td><td>3–90 dias</td><td><strong>Cancro duro</strong> (úlcera indolor, base endurecida, bordos regulares) + adenopatia regional indolor</td><td>Alta ✅</td></tr>
+      <tr><td><b>Secundária</b></td><td>6–8 semanas após</td><td>Roséola sifilítica (exantema maculopapular palmoplantar), Condiloma lata, alopecia em clareira, febre</td><td>Muito alta ✅✅</td></tr>
+      <tr><td><b>Latente precoce</b></td><td><1 ano</td><td>Assintomática</td><td>Possível</td></tr>
+      <tr><td><b>Latente tardia</b></td><td>>1 ano</td><td>Assintomática</td><td>Baixa</td></tr>
+      <tr><td><b>Terciária</b></td><td>Anos</td><td>Goma sifilítica, Neurossífilis (tabes dorsalis, paralisia geral progressiva), Sífilis cardiovascular (aortite)</td><td>Não transmite</td></tr>
+    </table>
+    <div class="alert alert-red">
+      <div class="alert-title">🔑 Diagnóstico Sorológico — Dois tipos de teste</div>
+      <strong>Não treponêmicos (triagem):</strong> VDRL, RPR — detectam anticorpos contra cardiolipina. Podem ser falso-positivos (LES, gravidez, mononucleose). Úteis para monitorar resposta ao tratamento (título cai após cura).<br><br>
+      <strong>Treponêmicos (confirmatórios):</strong> FTA-ABS, TPHA, ELISA — permanecem positivos para a vida.
+    </div>
+    <div class="alert alert-blue">
+      <div class="alert-title">🍼 Sífilis Congênita</div>
+      Transmissão vertical (especialmente 2º trimestre). Precoce (<2 anos): rinite sifilítica ("snuffles"), osteocondrite, pênfigo sifilítico, hepatoesplenomegalia. Tardia (>2 anos): Tríade de Hutchinson (dentes de Hutchinson + ceratite intersticial + surdez nervosa), nariz em sela, tíbia em sabre.
+    </div>
+    <div class="alert alert-gold">
+      <div class="alert-title">💊 Tratamento</div>
+      <strong>Penicilina G benzatina</strong> — fármaco de PRIMEIRA ESCOLHA em todos os estágios.<br>
+      Primária/Secundária/Latente precoce: 2,4 milhões UI IM dose única.<br>
+      Latente tardia/Terciária: 2,4 milhões UI IM × 3 semanas.<br>
+      Neurossífilis: Penicilina G cristalina IV × 14 dias.<br>
+      Alergia à penicilina: Doxiciclina (exceto grávidas → dessensibilização).
+    </div>
+    <div class="alert alert-purple">
+      <div class="alert-title">⚠️ Reação de Jarisch-Herxheimer</div>
+      Febre, calafrios, cefaleia e piora transitória das lesões nas primeiras 24h após início do tratamento. Causada pela liberação de LPS na destruição dos treponemas. Não é alergia à penicilina — continuar o tratamento.
+    </div>
+  </div>
+</div>
+
+</div><!-- fim sec-bacterias -->
+
+<!-- ══ COMPARATIVO ══ -->
+<div id="sec-comparativo" class="section">
+  <div class="alert alert-blue" style="margin-bottom:1.2rem">
+    <div class="alert-title">📊 Tabela Comparativa Rápida — 11 Bactérias</div>
+    Visão geral para memorização rápida antes da prova.
+  </div>
+  <div style="overflow-x:auto">
+  <table class="comp-table">
+    <tr>
+      <th>#</th><th>Bactéria</th><th>Gram</th><th>Morfologia</th><th>O₂</th><th>Doença principal</th><th>Ponto-chave</th><th>Tratamento 1ª linha</th>
+    </tr>
+    <tr><td>1</td><td class="bact-nm">E. coli</td><td>(-)</td><td>Bacilo</td><td>Fac.</td><td>ITU, diarreia (ETEC, EHEC, EPEC), meningite neonatal</td><td>O157:H7 → SHU. Fermenta lactose (rosa no MacConkey)</td><td>Cefalosporina 3G / Fosfomicina (ITU)</td></tr>
+    <tr><td>2</td><td class="bact-nm">Proteus</td><td>(-)</td><td>Bacilo</td><td>Fac.</td><td>ITU, sepse hospitalar</td><td>Urease(+++) → alcaliniza urina → cálculo de estruvita</td><td>Ampicilina / Cefalo.</td></tr>
+    <tr><td>3</td><td class="bact-nm">Vibrio cholerae</td><td>(-)</td><td>Bacilo curvo (vírgula)</td><td>Fac.</td><td>Cólera — diarreia em água de arroz</td><td>Toxina colérica → ↑AMPc → perda maciça de líquidos</td><td>Reidratação + Doxiciclina</td></tr>
+    <tr><td>4</td><td class="bact-nm">Campylobacter</td><td>(-)</td><td>Espiral (asa de gaivota)</td><td>Microaer.</td><td>Gastroenterite + SGB</td><td>Frango mal cozido. SGB pós-infeccioso</td><td>Azitromicina</td></tr>
+    <tr><td>5</td><td class="bact-nm">H. pylori</td><td>(-)</td><td>Espiral</td><td>Microaer.</td><td>Úlcera péptica, gastrite, adenocarcinoma gástrico</td><td>Urease(++++), carcinógeno OMS grupo 1, MALT</td><td>IBP + Claritro + Amoxi × 14d</td></tr>
+    <tr><td>6</td><td class="bact-nm">Neisseria</td><td>(-)</td><td>Diplococo (grão de café)</td><td>Aeróbio</td><td>Gonorreia (N. gono.) / Meningite (N. mening.)</td><td>Intracelular em neutrófilos. Maltose: mening.=sim, gono.=não</td><td>Ceftriaxona</td></tr>
+    <tr><td>7</td><td class="bact-nm">Bartonella</td><td>(-)</td><td>Cocobacilo</td><td>Aeróbio</td><td>DAG (B. henselae), Febre das trincheiras (B. quintana)</td><td>Arranhão de gato → linfadenopatia. HIV → Angiomatose bacilar</td><td>Azitromicina / Doxiciclina</td></tr>
+    <tr><td>8</td><td class="bact-nm">Brucella</td><td>(-)</td><td>Cocobacilo</td><td>Aeróbio</td><td>Brucelose — febre ondulante</td><td>Leite cru, contato c/ aborto animal. Intracelular facultativo</td><td>Doxiciclina 6s + Rifampicina 6s</td></tr>
+    <tr><td>9</td><td class="bact-nm">Pasteurella</td><td>(-)</td><td>Cocobacilo</td><td>Fac.</td><td>Celulite pós-mordida (gato/cão)</td><td>Início < 24h. Risco de osteomielite</td><td>Amoxicilina-Clavulanato</td></tr>
+    <tr><td>10</td><td class="bact-nm">Gardnerella</td><td>Variável</td><td>Cocobacilo</td><td>Fac.</td><td>Vaginose bacteriana</td><td>Clue cells, odor de peixe, pH>4,5, KOH positivo</td><td>Metronidazol</td></tr>
+    <tr><td>11</td><td class="bact-nm">T. pallidum</td><td>Não cora</td><td>Espiroqueta</td><td>Microaer.</td><td>Sífilis (primária/secundária/terciária/congênita)</td><td>Cancro duro → roséola palmoplantar → goma/neurossífilis</td><td>Penicilina G benzatina</td></tr>
+  </table>
+  </div>
+  <br>
+  <div class="sec-label">Agrupamentos úteis para memorizar</div>
+  <div class="info-grid" style="margin-top:.5rem">
+    <div class="info-chip"><div class="info-chip-label">🦠 Zoonoses</div><div class="info-chip-val">Brucella · Bartonella · Pasteurella · Campylobacter</div></div>
+    <div class="info-chip"><div class="info-chip-label">💊 Penicilina</div><div class="info-chip-val">T. pallidum (sempre!)</div></div>
+    <div class="info-chip"><div class="info-chip-label">🔬 Intracelulares</div><div class="info-chip-val">Brucella · Bartonella</div></div>
+    <div class="info-chip"><div class="info-chip-label">🌀 Espirais / Curvos</div><div class="info-chip-val">Vibrio · Campylobacter · H. pylori · T. pallidum</div></div>
+    <div class="info-chip"><div class="info-chip-label">🔴 Gram (-) diplococos</div><div class="info-chip-val">Neisseria gonorrhoeae e meningitidis</div></div>
+    <div class="info-chip"><div class="info-chip-label">💉 ISTs</div><div class="info-chip-val">N. gonorrhoeae · T. pallidum · Gardnerella</div></div>
+    <div class="info-chip"><div class="info-chip-label">🌊 Urease positiva</div><div class="info-chip-val">H. pylori · Proteus</div></div>
+    <div class="info-chip"><div class="info-chip-label">🌡️ Microaerófilos</div><div class="info-chip-val">H. pylori · Campylobacter · T. pallidum</div></div>
+  </div>
+</div>
+
+<!-- ══ MNEMÔNICOS ══ -->
+<div id="sec-mnemonicos" class="section">
+  <div class="mnemo-card">
+    <h4>🧠 E. coli — Patotipos</h4>
+    <div class="phrase">"EPEC Chora, ETEC Viaja, EHEC Sangra, EIEC Invade, EAEC Agrega"</div>
+    <p>Entero<b>P</b>atogênica = diarreia <b>P</b>ediátrica · Entero<b>T</b>oxigênica = diarreia do <b>T</b>urista · Entero<b>H</b>emorrágica = <b>H</b>emorrágica + SHU · Entero<b>I</b>nvasiva = <b>I</b>nvasão = febre · Entero<b>A</b>gregativa = <b>A</b>dere em camadas</p>
+  </div>
+  <div class="mnemo-card">
+    <h4>🧠 Proteus — Cálculo de Estruvita</h4>
+    <div class="phrase">"Proteus tem UREase → URina alcalina → URolítiase"</div>
+    <p>Tudo começa com URE. Urease → amônia → pH alto → cristais de fosfato de magnésio e amônio (estruvita) = cálculo coraliforme.</p>
+  </div>
+  <div class="mnemo-card">
+    <h4>🧠 Vibrio — Toxina Colérica</h4>
+    <div class="phrase">"B de Boia, A de Adenilato"</div>
+    <p>Subunidade <b>B</b> = <b>B</b>oia no receptor GM1 (ligação). Subunidade <b>A</b> = <b>A</b>tiva adenilato ciclase → ↑AMPc → diarreia.</p>
+  </div>
+  <div class="mnemo-card">
+    <h4>🧠 Campylobacter — SGB</h4>
+    <div class="phrase">"CAMPY = CArne de frango + Mimetismo → Paralisia"</div>
+    <p>CAMPYlobacter: frango (reservatório) → mimetismo molecular com gangliosídeos → Síndrome de Guillain-Barré (paralisia ascendente).</p>
+  </div>
+  <div class="mnemo-card">
+    <h4>🧠 H. pylori — Tripla Terapia</h4>
+    <div class="phrase">"ICA = IBP + Claritro + Amoxi"</div>
+    <p>IBP (inibidor de bomba) + Claritromicina + Amoxicilina × 14 dias. Carcinógeno OMS Grupo 1 → câncer gástrico + MALT.</p>
+  </div>
+  <div class="mnemo-card">
+    <h4>🧠 Neisseria — Maltose diferencia</h4>
+    <div class="phrase">"MeNINGO come MALTOSE. GONOrrea é seletiva."</div>
+    <p>N. <b>mening</b>itidis fermenta <b>Glicose + Maltose</b>. N. <b>gono</b>rrhoeae fermenta só <b>Glicose</b> (não come maltose — muito seletiva).</p>
+  </div>
+  <div class="mnemo-card">
+    <h4>🧠 Brucella — Tratamento</h4>
+    <div class="phrase">"DORI = DOxiciclina + RIfampicina × 6 semanas"</div>
+    <p>Sempre combinação (monoterapia recidiva). 6 semanas de cada. DORI não falha com Brucella.</p>
+  </div>
+  <div class="mnemo-card">
+    <h4>🧠 Gardnerella — Critérios de Amsel</h4>
+    <div class="phrase">"4C: Corrimento + pH > 4,5 + Cheiro de peixe (KOH) + Clue cells"</div>
+    <p>3 de 4 critérios = diagnóstico. Clue cells são o achado mais específico.</p>
+  </div>
+  <div class="mnemo-card">
+    <h4>🧠 Sífilis — Estágios</h4>
+    <div class="phrase">"CANCRO → ROSAPLANTAR → GOMA"</div>
+    <p>1ª: <b>Cancro</b> duro (indolor) → 2ª: Rosa<b>plantar</b> (roséola palmoplantar + condiloma lata) → 3ª: <b>Goma</b> + neurossífilis + cardiovascular. Tratamento sempre: Penicilina G benzatina.</p>
+  </div>
+</div>
+
+<!-- ══ PONTOS QUENTES ══ -->
+<div id="sec-pontos" class="section">
+  <div class="alert alert-red" style="margin-bottom:1.2rem">
+    <div class="alert-title">🔥 Os pontos que mais caem em prova</div>
+    Revisão final ultra-rápida — lê isso antes de entrar na sala.
+  </div>
+  <div class="hot-list">
+    <div class="hot-item"><span class="fire">🔴</span><div><strong>E. coli O157:H7 (EHEC):</strong> Toxina Shiga → SHU (anemia hemolítica + trombocitopenia + IRA). NÃO usar antibiótico — piora o prognóstico.</div></div>
+    <div class="hot-item"><span class="fire">🔴</span><div><strong>Proteus:</strong> Urease(+) → alcaliniza urina → cálculo de estruvita (coraliforme). Principal diagnóstico diferencial de ITU com pH urinário alcalino.</div></div>
+    <div class="hot-item"><span class="fire">🔴</span><div><strong>Vibrio cholerae:</strong> Subunidade B liga GM1 → Subunidade A ativa adenilato ciclase → ↑AMPc → diarreia em água de arroz. Tratamento = reidratação (prioridade absoluta).</div></div>
+    <div class="hot-item"><span class="fire">🔴</span><div><strong>Campylobacter:</strong> Forma em "asa de gaivota". Frango mal cozido. Complicação pós-infecciosa: Síndrome de Guillain-Barré (mimetismo molecular com gangliosídeos).</div></div>
+    <div class="hot-item"><span class="fire">🔴</span><div><strong>H. pylori:</strong> Urease(++++) = mecanismo de sobrevivência no estômago. Carcinógeno Grupo 1 OMS. Linfoma MALT regride com erradicação. Tripla terapia: IBP + Claritromicina + Amoxicilina × 14 dias.</div></div>
+    <div class="hot-item"><span class="fire">🔴</span><div><strong>Neisseria — diferenciação:</strong> N. meningitidis fermenta GLICOSE + MALTOSE. N. gonorrhoeae fermenta só GLICOSE. Meningocócica: rash petequial purpúrico = emergência (Waterhouse-Friderichsen).</div></div>
+    <div class="hot-item"><span class="fire">🔴</span><div><strong>Bartonella henselae:</strong> Arranhão de gato (vetor = pulga Ctenocephalides felis) → linfadenopatia regional. Em HIV: Angiomatose bacilar (lesões vasculares). Tto: Azitromicina.</div></div>
+    <div class="hot-item"><span class="fire">🔴</span><div><strong>Brucella:</strong> Febre ondulante + suor com odor de palha molhada. B. melitensis = mais virulenta. Transmissão: leite não pasteurizado. Tto: Doxiciclina + Rifampicina 6 semanas (NUNCA monoterapia).</div></div>
+    <div class="hot-item"><span class="fire">🔴</span><div><strong>Pasteurella multocida:</strong> Mordida de gato → celulite < 24h → risco de osteomielite. Tto: Amoxicilina-Clavulanato. NÃO usar apenas cefalexina (cobertura insuficiente).</div></div>
+    <div class="hot-item"><span class="fire">🔴</span><div><strong>Gardnerella vaginalis:</strong> Vaginose bacteriana. Critérios de Amsel (3 de 4): corrimento homogêneo + pH>4,5 + KOH positivo (odor de peixe) + Clue cells. Tto: Metronidazol.</div></div>
+    <div class="hot-item"><span class="fire">🔴</span><div><strong>Treponema pallidum:</strong> 1ª = cancro duro INDOLOR. 2ª = roséola palmoplantar + condiloma lata (muito contagioso). 3ª = neurossífilis (tabes dorsalis), goma, aortite. Tto: sempre Penicilina G benzatina. Reação de Jarisch-Herxheimer nas 1ªs 24h = normal, continuar tratamento.</div></div>
+    <div class="hot-item"><span class="fire">🟡</span><div><strong>Sífilis congênita tardia — Tríade de Hutchinson:</strong> Dentes de Hutchinson + Ceratite intersticial + Surdez nervosa. + Nariz em sela + Tíbia em sabre.</div></div>
+    <div class="hot-item"><span class="fire">🟡</span><div><strong>Diagnóstico de sífilis:</strong> VDRL/RPR = triagem (não treponêmico, pode ser falso-positivo, monitora tratamento pelo título). FTA-ABS = confirmatório (permanece positivo para sempre).</div></div>
+    <div class="hot-item"><span class="fire">🟡</span><div><strong>E. coli na MacConkey:</strong> Rosa/vermelha (fermenta lactose). Proteus = incolor + swarming. Salmonella/Shigella = incolor. EMB para E. coli = brilho metálico verde.</div></div>
+  </div>
+</div>
+
+</div><!-- fim main -->
+
+<button class="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  const tabs={'inicio':0,'bacterias':1,'comparativo':2,'mnemonicos':3,'pontos':4};
+  document.querySelectorAll('.nav-tab')[tabs[id]].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleCard(idx){
+  const card=document.getElementById('card-'+idx);
+  card.classList.toggle('open');
+}
+function openCard(idx){
+  // close all, open target
+  document.querySelectorAll('.bact-card').forEach(c=>c.classList.remove('open'));
+  const card=document.getElementById('card-'+idx);
+  if(card){card.classList.add('open');setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'start'}),100);}
+}
+</script>
+</body>
+</html>
