@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resumos Medicina</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #21262d;
+      --accent: #4ade80;
+      --accent2: #22d3ee;
+      --text: #e6edf3;
+      --muted: #8b949e;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: -200px; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(74,222,128,0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+    header {
+      text-align: center;
+      padding: 3rem 0 2.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2.5rem;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(74,222,128,0.12);
+      color: var(--accent);
+      border: 1px solid rgba(74,222,128,0.3);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: 1.1;
+      background: linear-gradient(135deg, #e6edf3 30%, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.75rem;
+    }
+    .subtitle { color: var(--muted); font-size: 0.95rem; font-weight: 300; }
+    .section { margin-bottom: 2.5rem; }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--accent2);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      animation: fadeUp 0.4s ease both;
+    }
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(74,222,128,0.1);
+    }
+    .card-icon {
+      width: 40px; height: 40px;
+      background: rgba(74,222,128,0.1);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .card-info { flex: 1; }
+    .card-title { font-size: 0.9rem; font-weight: 500; line-height: 1.3; margin-bottom: 2px; }
+    .card-tag { font-size: 0.72rem; color: var(--muted); }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .card:nth-child(1) { animation-delay: 0.05s; }
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.15s; }
+    .card:nth-child(4) { animation-delay: 0.2s; }
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">📚 Material de Estudo</div>
+    <h1>Resumos Medicina</h1>
+    <p class="subtitle">Selecione um resumo para começar a estudar</p>
+  </header>
+
+  <div class="section">
+    <div class="section-title">🦠 Microbiologia — P2</div>
+    <div class="grid">
+
+      <a class="card" href="Resumos%20P2%20Microbiologia/micro_p2_bacterias.html">
+        <div class="card-icon">🧫</div>
+        <div class="card-info">
+          <div class="card-title">Bactérias</div>
+          <div class="card-tag">Microbiologia · P2</div>
+        </div>
+      </a>
+
+      <a class="card" href="Resumos%20P2%20Microbiologia/microbiologia_p2 Bact%C3%A9rias.html">
+        <div class="card-icon">🔬</div>
+        <div class="card-info">
+          <div class="card-title">Bactérias (Completo)</div>
+          <div class="card-tag">Microbiologia · P2</div>
+        </div>
+      </a>
+
+      <a class="card" href="Resumos%20P2%20Microbiologia/Micro_p2_casos_clinicos.html">
+        <div class="card-icon">🏥</div>
+        <div class="card-info">
+          <div class="card-title">Casos Clínicos</div>
+          <div class="card-tag">Microbiologia · P2</div>
+        </div>
+      </a>
+
+      <a class="card" href="Resumos%20P2%20Microbiologia/casos%20clinicos%20microbiologia_p2.html">
+        <div class="card-icon">📋</div>
+        <div class="card-info">
+          <div class="card-title">Casos Clínicos (Alt)</div>
+          <div class="card-tag">Microbiologia · P2</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <footer>
+    Resumos Chris · Material exclusivo para alunos
+  </footer>
+
+</div>
+</body>
+</html>
